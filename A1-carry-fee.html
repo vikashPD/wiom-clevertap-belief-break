@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>A1 – Carry Fee</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"/>
+<style>
+:root{
+  --brand:#D9008D;
+  --brand-tint:#FFE5F6;
+  --bg-screen:#FAF9FC;
+  --bg-surface:#FFF;
+  --text-primary:#161021;
+  --text-secondary:#5C5570;
+  --text-hint:#A7A1B2;
+  --text-on-brand:#FFF;
+  --bg-disabled:#D7D3E0;
+  --positive:#008043;
+  --negative:#D92130;
+  --bg-positive:#E1FAED;
+  --bg-negative:#FFE5E7;
+  --stroke:#E8E4F0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;height:100%;
+  font-family:"Noto Sans Devanagari","Inter",sans-serif;
+  font-size:15px;line-height:1.5;color:var(--text-primary);
+  background:var(--bg-screen);overflow:hidden;
+}
+
+/* ── layout ── */
+.screen{
+  display:none;flex-direction:column;
+  width:100%;height:100%;position:absolute;top:0;left:0;
+}
+.screen.active{display:flex}
+
+.pink-top{
+  background:var(--brand-tint);display:flex;
+  justify-content:center;align-items:flex-end;
+  padding-bottom:20px;flex-shrink:0;
+}
+.pink-top.large{min-height:200px}
+.pink-top.small{min-height:100px}
+
+.icon-circle{
+  background:var(--bg-surface);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.icon-circle.large{width:80px;height:80px}
+.icon-circle.small{width:56px;height:56px}
+.icon-circle .material-icons{color:var(--brand)}
+.icon-circle.large .material-icons{font-size:40px}
+.icon-circle.small .material-icons{font-size:28px}
+
+.content{
+  flex:1;display:flex;flex-direction:column;
+  padding:22px 20px 24px;overflow-y:auto;
+}
+.title{font-size:21px;line-height:1.25;font-weight:700;margin-bottom:14px}
+.body-list{list-style:none;padding:0;margin:0 0 14px}
+.body-list li{
+  position:relative;padding-left:20px;margin-bottom:10px;
+  font-size:14px;line-height:1.6;color:var(--text-secondary);
+}
+.body-list li::before{
+  content:"\2022";position:absolute;left:0;top:-2px;
+  color:var(--brand);font-weight:700;font-size:20px;
+}
+.body-list li b{color:var(--text-primary);font-weight:600}
+
+.question{font-size:17px;line-height:1.3;font-weight:700;margin-bottom:16px}
+.question.dim{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:12px}
+
+.spacer{flex:1}
+
+.cta{
+  background:var(--brand);color:var(--text-on-brand);
+  border:none;border-radius:12px;padding:14px;
+  font-size:15px;font-weight:600;cursor:pointer;
+  width:100%;min-height:48px;
+  font-family:"Noto Sans Devanagari","Inter",sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.cta.disabled{background:var(--bg-disabled);color:var(--text-hint);pointer-events:none}
+
+/* ── quiz options ── */
+.opt{
+  border:1.5px solid var(--stroke);background:var(--bg-surface);
+  border-radius:12px;padding:13px 16px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  font-size:14px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .15s,background .15s;
+}
+.opt .radio{
+  width:18px;height:18px;border:2px solid var(--text-hint);
+  border-radius:50%;flex-shrink:0;transition:all .15s;
+}
+.opt.selected{border-color:var(--brand);background:var(--brand-tint);font-weight:600}
+.opt.selected .radio{
+  background:var(--brand);border-color:var(--brand);
+  box-shadow:inset 0 0 0 3px #fff;
+}
+.opt.correct{border-color:var(--positive);background:var(--bg-positive);font-weight:600}
+.opt.correct .radio{
+  background:var(--positive);border-color:var(--positive);
+  box-shadow:inset 0 0 0 3px #fff;
+}
+.opt.wrong-pick{border-color:var(--negative);background:var(--bg-negative);font-weight:600}
+.opt.wrong-pick .radio{
+  background:var(--negative);border-color:var(--negative);
+  box-shadow:inset 0 0 0 3px #fff;
+}
+
+.correction-box{
+  background:var(--bg-positive);border-radius:12px;
+  padding:14px 16px;color:var(--positive);
+  font-size:13px;line-height:1.6;font-weight:600;
+  margin:14px 0;
+}
+
+/* ── right-answer overlay ── */
+.right-stack{
+  flex:1;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;padding:20px;
+}
+.check-big{
+  width:80px;height:80px;background:var(--positive);
+  border-radius:50%;display:flex;align-items:center;
+  justify-content:center;margin-bottom:16px;
+}
+.check-big .material-icons{color:#fff;font-size:48px}
+.right-stack h3{font-size:24px;font-weight:700;color:var(--positive)}
+.right-stack .auto-dismiss{
+  margin-top:10px;font-size:12px;color:var(--text-secondary);
+  letter-spacing:.06em;text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+
+<!-- ━━━ SCREEN 1 : INFORM ━━━ -->
+<div class="screen active" id="inform">
+  <div class="pink-top large">
+    <div class="icon-circle large"><span class="material-icons">router</span></div>
+  </div>
+  <div class="content">
+    <div class="title">Carry fee लगना शुरू हो गया है</div>
+    <ul class="body-list">
+      <li>आज से हर दिन ₹2/दिन carry fee कटना शुरू हो गया है</li>
+      <li>एक NetBox आपके पास 15 दिन से ऊपर से रखा हुआ है</li>
+      <li>वो NetBox Wiom को वापस भेजें</li>
+    </ul>
+    <div class="spacer"></div>
+    <button class="cta" onclick="showQuiz()">ठीक है</button>
+  </div>
+</div>
+
+<!-- ━━━ SCREEN 2 : QUIZ ━━━ -->
+<div class="screen" id="quiz">
+  <div class="pink-top small">
+    <div class="icon-circle small"><span class="material-icons">router</span></div>
+  </div>
+  <div class="content">
+    <div class="question">इस शुल्क को रोकने के लिए क्या करना है?</div>
+    <div class="opt" data-idx="0" onclick="selectOpt(this)">
+      <span class="radio"></span><span>कुछ नहीं — Wiom अपने आप रोक देगा</span>
+    </div>
+    <div class="opt" data-idx="1" onclick="selectOpt(this)">
+      <span class="radio"></span><span>NetBox install करें या Wiom को वापस भेज दीजिए</span>
+    </div>
+    <div class="opt" data-idx="2" onclick="selectOpt(this)">
+      <span class="radio"></span><span>सिर्फ़ install करना है</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="cta disabled" id="submitBtn" onclick="submitAnswer()">जवाब दें</button>
+  </div>
+</div>
+
+<!-- ━━━ SCREEN 3 : RIGHT ANSWER ━━━ -->
+<div class="screen" id="right">
+  <div class="pink-top small">
+    <div class="icon-circle small"><span class="material-icons">router</span></div>
+  </div>
+  <div class="content">
+    <div class="right-stack">
+      <div class="check-big"><span class="material-icons">check</span></div>
+      <h3>सही</h3>
+      <div class="auto-dismiss">auto-dismiss · 1.5s</div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━ SCREEN 4 : WRONG ANSWER ━━━ -->
+<div class="screen" id="wrong">
+  <div class="pink-top small">
+    <div class="icon-circle small"><span class="material-icons">router</span></div>
+  </div>
+  <div class="content">
+    <div class="question dim">इस शुल्क को रोकने के लिए क्या करना है?</div>
+    <div class="opt wrong-pick">
+      <span class="radio"></span><span id="wrongLabel"></span>
+    </div>
+    <div class="opt correct">
+      <span class="radio"></span><span>NetBox install करें या Wiom को वापस भेज दीजिए</span>
+    </div>
+    <div class="correction-box">सही जवाब: शुल्क रोकने के दो रास्ते हैं — NetBox ग्राहक के घर install करें या Wiom को वापस भेज दीजिए। दोनों ही काम करेंगे — कोई भी एक कीजिए, शुल्क आज ही रुक जाएगा।</div>
+    <div class="spacer"></div>
+    <button class="cta" onclick="dismiss()">ठीक है</button>
+  </div>
+</div>
+
+<script>
+var CORRECT=1;
+var selected=-1;
+var optLabels=[
+  "कुछ नहीं — Wiom अपने आप रोक देगा",
+  "NetBox install करें या Wiom को वापस भेज दीजिए",
+  "सिर्फ़ install करना है"
+];
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+function showQuiz(){
+  fireEvent("A1_inform_ok");
+  show('quiz');
+}
+
+function selectOpt(el){
+  document.querySelectorAll('#quiz .opt').forEach(function(o){o.classList.remove('selected')});
+  el.classList.add('selected');
+  selected=parseInt(el.getAttribute('data-idx'));
+  document.getElementById('submitBtn').classList.remove('disabled');
+}
+
+function submitAnswer(){
+  if(selected<0)return;
+  fireEvent("A1_quiz_answered",{answer:optLabels[selected],correct:selected===CORRECT});
+  if(selected===CORRECT){
+    show('right');
+    setTimeout(function(){dismiss()},1500);
+  }else{
+    document.getElementById('wrongLabel').textContent=optLabels[selected];
+    show('wrong');
+  }
+}
+
+function dismiss(){
+  fireEvent("A1_dismissed");
+  try{
+    if(window.CleverTap) CleverTap.closeInApp();
+    else if(window.wizrocket) wizrocket.closeInApp();
+    else if(window.clevertap) clevertap.closeInApp();
+  }catch(e){}
+}
+
+function fireEvent(name,props){
+  try{
+    if(window.CleverTap) CleverTap.pushEvent(name,props||{});
+    else if(window.wizrocket) wizrocket.pushEvent(name,props||{});
+    else if(window.clevertap) clevertap.event.push(name,props||{});
+  }catch(e){}
+}
+</script>
+</body>
+</html>
