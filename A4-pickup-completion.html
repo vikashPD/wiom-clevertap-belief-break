@@ -107,7 +107,7 @@ body{
       <li>अब NetBox के हर pickup पर ₹50 मिलेंगे</li>
     </ul>
     <div class="spacer"></div>
-    <button class="cta" onclick="showQuiz()">ठीक है</button>
+    <button class="cta" id="informBtn">ठीक है</button>
   </div>
 </div>
 
@@ -117,17 +117,17 @@ body{
   </div>
   <div class="content">
     <div class="question">अगली pickup पर भी ₹50 मिलेंगे?</div>
-    <div class="opt" data-idx="0" onclick="selectOpt(this)">
+    <div class="opt" id="opt0" data-idx="0">
       <span class="radio"></span><span>नहीं — पहली बार का bonus था</span>
     </div>
-    <div class="opt" data-idx="1" onclick="selectOpt(this)">
+    <div class="opt" id="opt1" data-idx="1">
       <span class="radio"></span><span>हाँ — हर successful pickup पर automatic</span>
     </div>
-    <div class="opt" data-idx="2" onclick="selectOpt(this)">
+    <div class="opt" id="opt2" data-idx="2">
       <span class="radio"></span><span>हाँ, लेकिन Wiom से माँगने पर</span>
     </div>
     <div class="spacer"></div>
-    <button class="cta disabled" id="submitBtn" onclick="submitAnswer()">जवाब दें</button>
+    <button class="cta disabled" id="submitBtn">जवाब दें</button>
   </div>
 </div>
 
@@ -158,41 +158,64 @@ body{
     </div>
     <div class="correction-box">सही जवाब: हर successful NetBox pickup पर ₹50 automatic आपके account में आ जाएँगे। माँगने की ज़रूरत नहीं — Wiom खुद हर बार जोड़ देता है। आज जो आए, वो हर बार आएँगे।</div>
     <div class="spacer"></div>
-    <button class="cta" onclick="dismiss()">ठीक है</button>
+    <button class="cta" id="wrongBtn">ठीक है</button>
   </div>
 </div>
 
 <script>
-var CORRECT=1;
-var selected=-1;
-var optLabels=["नहीं — पहली बार का bonus था","हाँ — हर successful pickup पर automatic","हाँ, लेकिन Wiom से माँगने पर"];
+(function(){
+  var CORRECT = 1;
+  var selected = -1;
+  var optLabels = [
+    "\u0928\u0939\u0940\u0902 \u2014 \u092A\u0939\u0932\u0940 \u092C\u093E\u0930 \u0915\u093E bonus \u0925\u093E",
+    "\u0939\u093E\u0901 \u2014 \u0939\u0930 successful pickup \u092A\u0930 automatic",
+    "\u0939\u093E\u0901, \u0932\u0947\u0915\u093F\u0928 Wiom \u0938\u0947 \u092E\u093E\u0901\u0917\u0928\u0947 \u092A\u0930"
+  ];
 
-function show(id){
-  var screens=document.querySelectorAll('.screen');
-  for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
-  document.getElementById(id).classList.add('active');
-}
-function showQuiz(){fireEvent("A4_inform_ok");show('quiz')}
-function selectOpt(el){
-  var opts=document.querySelectorAll('#quiz .opt');
-  for(var i=0;i<opts.length;i++) opts[i].classList.remove('selected');
-  el.classList.add('selected');
-  selected=parseInt(el.getAttribute('data-idx'));
-  document.getElementById('submitBtn').classList.remove('disabled');
-}
-function submitAnswer(){
-  if(selected<0)return;
-  fireEvent("A4_quiz_answered",{answer:optLabels[selected],correct:selected===CORRECT?"true":"false"});
-  if(selected===CORRECT){show('right');setTimeout(function(){dismiss()},1500)}
-  else{document.getElementById('wrongLabel').textContent=optLabels[selected];show('wrong')}
-}
-function dismiss(){
-  fireEvent("A4_dismissed");
-  try{if(window.CleverTap)CleverTap.closeInApp();else if(window.wizrocket)wizrocket.closeInApp()}catch(e){}
-}
-function fireEvent(n,p){
-  try{if(window.CleverTap)CleverTap.pushEvent(n,p||{});else if(window.wizrocket)wizrocket.pushEvent(n,p||{})}catch(e){}
-}
+  function show(id) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+  }
+
+  function selectOpt(idx) {
+    var opts = document.querySelectorAll('#quiz .opt');
+    for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
+    document.getElementById('opt' + idx).classList.add('selected');
+    selected = idx;
+    document.getElementById('submitBtn').classList.remove('disabled');
+  }
+
+  function dismiss() {
+    fireEvent("A4_dismissed");
+    try { if (window.CleverTap) CleverTap.closeInApp(); } catch(e) {}
+    try { if (window.wizrocket) wizrocket.closeInApp(); } catch(e) {}
+  }
+
+  function fireEvent(n, p) {
+    try { if (window.CleverTap) CleverTap.pushEvent(n, p || {}); } catch(e) {}
+    try { if (window.wizrocket) wizrocket.pushEvent(n, p || {}); } catch(e) {}
+  }
+
+  function tap(id, fn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function(e) { e.preventDefault(); fn(); }, false);
+    el.addEventListener('touchend', function(e) { e.preventDefault(); fn(); }, false);
+  }
+
+  tap('informBtn', function() { fireEvent("A4_inform_ok"); show('quiz'); });
+  tap('opt0', function() { selectOpt(0); });
+  tap('opt1', function() { selectOpt(1); });
+  tap('opt2', function() { selectOpt(2); });
+  tap('submitBtn', function() {
+    if (selected < 0) return;
+    fireEvent("A4_quiz_answered", {answer: optLabels[selected], correct: selected === CORRECT ? "true" : "false"});
+    if (selected === CORRECT) { show('right'); setTimeout(function() { dismiss(); }, 1500); }
+    else { document.getElementById('wrongLabel').textContent = optLabels[selected]; show('wrong'); }
+  });
+  tap('wrongBtn', function() { dismiss(); });
+})();
 </script>
 </body>
 </html>
