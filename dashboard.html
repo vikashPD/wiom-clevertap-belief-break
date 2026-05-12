@@ -7,23 +7,30 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FAF9FC;color:#161021;min-height:100vh}
-.header{background:#D9008D;color:#fff;padding:24px 20px}
+.header{background:#D9008D;color:#fff;padding:24px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
 .header h1{font-size:22px;font-weight:700}
 .header p{font-size:13px;opacity:.8;margin-top:4px}
-.config{background:#fff;border-bottom:1px solid #E8E4F0;padding:16px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mode-toggle{display:flex;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden}
+.mode-btn{padding:8px 16px;font-size:13px;font-weight:600;color:#fff;border:none;cursor:pointer;background:transparent}
+.mode-btn.active{background:rgba(255,255,255,.3);border-radius:8px}
+.config{background:#fff;border-bottom:1px solid #E8E4F0;padding:14px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .config input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #E8E4F0;border-radius:8px;font-size:14px;outline:none}
 .config input:focus{border-color:#D9008D}
 .config button{background:#D9008D;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer}
 .config button:hover{background:#B3006F}
-.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:20px}
+.hide{display:none!important}
+.banner{padding:10px 20px;font-size:13px;font-weight:600;text-align:center}
+.banner.demo{background:#FFF3CD;color:#856404}
+.banner.live{background:#D4EDDA;color:#155724}
+.totals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px}
 .stat{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E4F0;text-align:center}
 .stat .val{font-size:28px;font-weight:700;color:#D9008D}
 .stat .lbl{font-size:12px;color:#5C5570;margin-top:4px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;padding:0 20px 20px}
 .card{background:#fff;border-radius:12px;border:1px solid #E8E4F0;overflow:hidden}
-.card-head{background:#FFE5F6;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.card-head h3{font-size:16px;font-weight:700;color:#D9008D}
-.card-head .tag{font-size:11px;background:#D9008D;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.card-head{background:#FFE5F6;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card-head h3{font-size:15px;font-weight:700;color:#D9008D}
+.card-head .tag{font-size:10px;background:#D9008D;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .card-body{padding:16px}
 .metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F1F7}
 .metric:last-child{border-bottom:none}
@@ -33,82 +40,139 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .metric .v.red{color:#D92130}
 .bar-wrap{height:6px;background:#F3F1F7;border-radius:3px;margin-top:10px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;background:#008043;transition:width .5s}
-.empty{text-align:center;padding:60px 20px;color:#5C5570}
-.empty p{font-size:14px;line-height:1.6}
 .footer{text-align:center;padding:20px;font-size:12px;color:#A7A1B2}
-.refresh label{cursor:pointer;font-size:12px;color:#5C5570}
 #status{font-size:12px;color:#5C5570;padding:4px 20px}
+.setup-box{background:#fff;margin:20px;padding:24px;border-radius:12px;border:1px solid #E8E4F0}
+.setup-box h3{font-size:16px;font-weight:700;margin-bottom:12px;color:#D9008D}
+.setup-box ol{padding-left:20px;font-size:14px;line-height:2;color:#5C5570}
+.setup-box code{background:#F3F1F7;padding:2px 6px;border-radius:4px;font-size:13px}
+.refresh label{cursor:pointer;font-size:12px;color:#5C5570}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Wiom Belief Break Analytics</h1>
-  <p>Quiz tracking dashboard for in-app campaigns</p>
+  <div>
+    <h1>Wiom Belief Break Analytics</h1>
+    <p>Quiz tracking dashboard for in-app campaigns</p>
+  </div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="btnDemo" onclick="switchMode('demo')">Demo Data</button>
+    <button class="mode-btn" id="btnLive" onclick="switchMode('live')">Live Data</button>
+  </div>
 </div>
 
-<div class="config">
+<div class="banner demo" id="bannerDemo">Showing demo data — switch to "Live Data" after backend setup</div>
+<div class="banner live hide" id="bannerLive">Connected to live tracking data</div>
+
+<div class="config hide" id="liveConfig">
   <input type="text" id="endpoint" placeholder="Paste your Google Apps Script URL here"/>
-  <button onclick="loadData()">Load Data</button>
+  <button onclick="loadLiveData()">Load Data</button>
   <div class="refresh">
-    <label><input type="checkbox" id="autoRefresh" onchange="toggleRefresh()"/> Auto-refresh 30s</label>
+    <label><input type="checkbox" id="autoRefresh" onchange="toggleRefresh()"/> Auto 30s</label>
   </div>
 </div>
 <div id="status"></div>
 
 <div class="totals" id="totals"></div>
 <div class="grid" id="grid"></div>
-<div class="empty" id="empty">
-  <p>No data yet.<br/>Paste your tracking URL above and click Load Data.</p>
+
+<div class="setup-box hide" id="setupBox">
+  <h3>How to connect live tracking data</h3>
+  <ol>
+    <li>Open <code>sheets.new</code> in Chrome</li>
+    <li>Click <strong>Extensions &gt; Apps Script</strong></li>
+    <li>Delete default code, paste the <code>tracking-backend.gs</code> code</li>
+    <li>Click <strong>Deploy &gt; New deployment &gt; Web app</strong></li>
+    <li>Set access to <strong>Anyone</strong>, click Deploy</li>
+    <li>Copy the URL and paste it in the input above</li>
+  </ol>
 </div>
 
 <div class="footer">Wiom Belief Break Tracker</div>
 
 <script>
 var FLOW_INFO = {
-  A1: { name: 'A1 \u2013 Carry Fee',              desc: 'Carriage \u20B92/day deduction' },
-  A2: { name: 'A2 \u2013 Withdrawal Rules',        desc: 'Tue & Fri withdrawal' },
-  A3: { name: 'A3 \u2013 Connection Activation',   desc: 'PayG connection \u20B9300' },
-  A4: { name: 'A4 \u2013 Pickup Completion',       desc: 'NetBox pickup \u20B950' },
-  A5: { name: 'A5 \u2013 Quality Score',           desc: 'Bonus & work impact' }
+  A1: { name: 'A1 \u2013 Carry Fee',            desc: '\u20B92/day deduction' },
+  A2: { name: 'A2 \u2013 Withdrawal Rules',      desc: 'Tue & Fri withdrawal' },
+  A3: { name: 'A3 \u2013 Connection Activation', desc: 'PayG \u20B9300' },
+  A4: { name: 'A4 \u2013 Pickup Completion',     desc: 'NetBox \u20B950' },
+  A5: { name: 'A5 \u2013 Quality Score',         desc: 'Bonus & work' }
 };
+
+var DEMO_DATA = {
+  summary: {
+    A1: { inform: 342, quiz: 298, correct: 215, wrong: 83 },
+    A2: { inform: 510, quiz: 445, correct: 367, wrong: 78 },
+    A3: { inform: 189, quiz: 156, correct: 118, wrong: 38 },
+    A4: { inform: 275, quiz: 231, correct: 185, wrong: 46 },
+    A5: { inform: 420, quiz: 358, correct: 244, wrong: 114 }
+  },
+  total: 4712
+};
+
+var currentMode = 'demo';
 var refreshTimer = null;
 
 window.onload = function() {
-  var saved = localStorage.getItem('wiom_tracking_url');
-  if (saved) {
-    document.getElementById('endpoint').value = saved;
-    loadData();
-  }
+  renderDashboard(DEMO_DATA);
 };
 
-function loadData() {
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnDemo').className = 'mode-btn' + (mode === 'demo' ? ' active' : '');
+  document.getElementById('btnLive').className = 'mode-btn' + (mode === 'live' ? ' active' : '');
+  document.getElementById('bannerDemo').className = 'banner demo' + (mode === 'demo' ? '' : ' hide');
+  document.getElementById('bannerLive').className = 'banner live' + (mode === 'live' ? '' : ' hide');
+  document.getElementById('liveConfig').className = 'config' + (mode === 'live' ? '' : ' hide');
+  document.getElementById('setupBox').className = 'setup-box' + (mode === 'live' ? '' : ' hide');
+  document.getElementById('status').textContent = '';
+
+  if (mode === 'demo') {
+    renderDashboard(DEMO_DATA);
+  } else {
+    var saved = localStorage.getItem('wiom_tracking_url');
+    if (saved) {
+      document.getElementById('endpoint').value = saved;
+      loadLiveData();
+    } else {
+      document.getElementById('totals').innerHTML = '';
+      document.getElementById('grid').innerHTML = '';
+    }
+  }
+}
+
+function loadLiveData() {
   var url = document.getElementById('endpoint').value.trim();
-  if (!url) return;
+  if (!url) { document.getElementById('status').textContent = 'Please paste the tracking URL first'; return; }
   localStorage.setItem('wiom_tracking_url', url);
   document.getElementById('status').textContent = 'Loading\u2026';
 
   var cbName = '_wcb' + Date.now();
-  var script = document.createElement('script');
+  var s = document.createElement('script');
 
   window[cbName] = function(data) {
+    document.getElementById('bannerLive').className = 'banner live';
     renderDashboard(data);
     delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
+    if (s.parentNode) s.parentNode.removeChild(s);
   };
 
-  script.src = url + '?action=data&callback=' + cbName;
-  script.onerror = function() {
+  s.src = url + '?action=data&callback=' + cbName;
+  s.onerror = function() {
     delete window[cbName];
-    if (script.parentNode) script.parentNode.removeChild(script);
+    if (s.parentNode) s.parentNode.removeChild(s);
     fetch(url + '?action=data')
       .then(function(r) { return r.json(); })
-      .then(renderDashboard)
+      .then(function(data) {
+        document.getElementById('bannerLive').className = 'banner live';
+        renderDashboard(data);
+      })
       .catch(function(err) {
         document.getElementById('status').textContent = 'Error: ' + err.message;
       });
   };
-  document.body.appendChild(script);
+  document.body.appendChild(s);
 }
 
 function renderDashboard(data) {
@@ -117,64 +181,67 @@ function renderDashboard(data) {
     return;
   }
 
-  var s = data.summary;
-  var tI = 0, tQ = 0, tC = 0, tW = 0;
+  var sm = data.summary;
+  var tI=0, tQ=0, tC=0, tW=0;
   var flows = ['A1','A2','A3','A4','A5'];
 
-  for (var i = 0; i < flows.length; i++) {
-    var f = s[flows[i]] || { inform:0, quiz:0, correct:0, wrong:0 };
-    tI += f.inform; tQ += f.quiz; tC += f.correct; tW += f.wrong;
+  for (var i=0; i<flows.length; i++) {
+    var f = sm[flows[i]] || {inform:0,quiz:0,correct:0,wrong:0};
+    tI+=f.inform; tQ+=f.quiz; tC+=f.correct; tW+=f.wrong;
   }
 
-  var tA = tC + tW;
-  var cRate = tA > 0 ? Math.round(tC / tA * 100) : 0;
-  var qRate = tI > 0 ? Math.round(tQ / tI * 100) : 0;
+  var tA=tC+tW;
+  var cR = tA>0 ? Math.round(tC/tA*100) : 0;
+  var qR = tI>0 ? Math.round(tQ/tI*100) : 0;
 
   document.getElementById('totals').innerHTML =
-    stat(tI, 'Impressions') + stat(tQ, 'Quiz Views') +
-    stat(tC, 'Correct') + stat(tW, 'Wrong') +
-    stat(qRate + '%', 'Quiz Rate') + stat(cRate + '%', 'Correct Rate');
+    st(tI,'Total Impressions') + st(tQ,'Quiz Attempts') +
+    st(tC,'Correct Answers') + st(tW,'Wrong Answers') +
+    st(qR+'%','Quiz Rate') + st(cR+'%','Correct Rate');
 
-  var html = '';
-  for (var j = 0; j < flows.length; j++) {
-    var fk = flows[j];
-    var fd = s[fk] || { inform:0, quiz:0, correct:0, wrong:0 };
+  var html='';
+  for (var j=0; j<flows.length; j++) {
+    var fk=flows[j];
+    var fd = sm[fk] || {inform:0,quiz:0,correct:0,wrong:0};
     var info = FLOW_INFO[fk];
-    var att = fd.correct + fd.wrong;
-    var cr = att > 0 ? Math.round(fd.correct / att * 100) : 0;
-    var qr = fd.inform > 0 ? Math.round(fd.quiz / fd.inform * 100) : 0;
+    var at=fd.correct+fd.wrong;
+    var cr = at>0 ? Math.round(fd.correct/at*100) : 0;
+    var qr = fd.inform>0 ? Math.round(fd.quiz/fd.inform*100) : 0;
 
-    html += '<div class="card">' +
-      '<div class="card-head"><h3>' + info.name + '</h3><span class="tag">' + info.desc + '</span></div>' +
-      '<div class="card-body">' +
-      row('Impressions', fd.inform, '') +
-      row('Quiz Views', fd.quiz, '') +
-      row('Correct', fd.correct, 'green') +
-      row('Wrong', fd.wrong, 'red') +
-      row('Quiz Rate', qr + '%', '') +
-      row('Correct Rate', cr + '%', cr >= 50 ? 'green' : 'red') +
-      '<div class="bar-wrap"><div class="bar-fill" style="width:' + cr + '%"></div></div>' +
+    html += '<div class="card">'+
+      '<div class="card-head"><h3>'+info.name+'</h3><span class="tag">'+info.desc+'</span></div>'+
+      '<div class="card-body">'+
+      rw('Impressions',fd.inform,'')+
+      rw('Quiz Attempts',fd.quiz,'')+
+      rw('Correct',fd.correct,'green')+
+      rw('Wrong',fd.wrong,'red')+
+      rw('Quiz Rate',qr+'%','')+
+      rw('Correct Rate',cr+'%',cr>=50?'green':'red')+
+      '<div class="bar-wrap"><div class="bar-fill" style="width:'+cr+'%"></div></div>'+
       '</div></div>';
   }
 
   document.getElementById('grid').innerHTML = html;
-  document.getElementById('empty').style.display = tI > 0 ? 'none' : 'block';
-  document.getElementById('status').textContent =
-    'Updated: ' + new Date().toLocaleTimeString() + ' | Total events: ' + (data.total || 0);
+
+  if (currentMode === 'live') {
+    document.getElementById('status').textContent =
+      'Updated: '+new Date().toLocaleTimeString()+' | Events: '+(data.total||0);
+  } else {
+    document.getElementById('status').textContent = '';
+  }
 }
 
-function stat(v, l) {
-  return '<div class="stat"><div class="val">' + v + '</div><div class="lbl">' + l + '</div></div>';
+function st(v,l) {
+  return '<div class="stat"><div class="val">'+v+'</div><div class="lbl">'+l+'</div></div>';
 }
-function row(k, v, c) {
-  return '<div class="metric"><span class="k">' + k + '</span><span class="v' + (c ? ' ' + c : '') + '">' + v + '</span></div>';
+function rw(k,v,c) {
+  return '<div class="metric"><span class="k">'+k+'</span><span class="v'+(c?' '+c:'')+'">'+v+'</span></div>';
 }
 function toggleRefresh() {
   if (document.getElementById('autoRefresh').checked) {
-    refreshTimer = setInterval(loadData, 30000);
+    refreshTimer = setInterval(loadLiveData, 30000);
   } else {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
+    clearInterval(refreshTimer); refreshTimer=null;
   }
 }
 </script>
