@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wiom Belief Break – Analytics Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FAF9FC;color:#161021;min-height:100vh}
+.header{background:#D9008D;color:#fff;padding:24px 20px}
+.header h1{font-size:22px;font-weight:700}
+.header p{font-size:13px;opacity:.8;margin-top:4px}
+.config{background:#fff;border-bottom:1px solid #E8E4F0;padding:16px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.config input{flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #E8E4F0;border-radius:8px;font-size:14px;outline:none}
+.config input:focus{border-color:#D9008D}
+.config button{background:#D9008D;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer}
+.config button:hover{background:#B3006F}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:20px}
+.stat{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E4F0;text-align:center}
+.stat .val{font-size:28px;font-weight:700;color:#D9008D}
+.stat .lbl{font-size:12px;color:#5C5570;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;padding:0 20px 20px}
+.card{background:#fff;border-radius:12px;border:1px solid #E8E4F0;overflow:hidden}
+.card-head{background:#FFE5F6;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.card-head h3{font-size:16px;font-weight:700;color:#D9008D}
+.card-head .tag{font-size:11px;background:#D9008D;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.card-body{padding:16px}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F1F7}
+.metric:last-child{border-bottom:none}
+.metric .k{font-size:13px;color:#5C5570}
+.metric .v{font-size:15px;font-weight:600}
+.metric .v.green{color:#008043}
+.metric .v.red{color:#D92130}
+.bar-wrap{height:6px;background:#F3F1F7;border-radius:3px;margin-top:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:#008043;transition:width .5s}
+.empty{text-align:center;padding:60px 20px;color:#5C5570}
+.empty p{font-size:14px;line-height:1.6}
+.footer{text-align:center;padding:20px;font-size:12px;color:#A7A1B2}
+.refresh label{cursor:pointer;font-size:12px;color:#5C5570}
+#status{font-size:12px;color:#5C5570;padding:4px 20px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Wiom Belief Break Analytics</h1>
+  <p>Quiz tracking dashboard for in-app campaigns</p>
+</div>
+
+<div class="config">
+  <input type="text" id="endpoint" placeholder="Paste your Google Apps Script URL here"/>
+  <button onclick="loadData()">Load Data</button>
+  <div class="refresh">
+    <label><input type="checkbox" id="autoRefresh" onchange="toggleRefresh()"/> Auto-refresh 30s</label>
+  </div>
+</div>
+<div id="status"></div>
+
+<div class="totals" id="totals"></div>
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty">
+  <p>No data yet.<br/>Paste your tracking URL above and click Load Data.</p>
+</div>
+
+<div class="footer">Wiom Belief Break Tracker</div>
+
+<script>
+var FLOW_INFO = {
+  A1: { name: 'A1 \u2013 Carry Fee',              desc: 'Carriage \u20B92/day deduction' },
+  A2: { name: 'A2 \u2013 Withdrawal Rules',        desc: 'Tue & Fri withdrawal' },
+  A3: { name: 'A3 \u2013 Connection Activation',   desc: 'PayG connection \u20B9300' },
+  A4: { name: 'A4 \u2013 Pickup Completion',       desc: 'NetBox pickup \u20B950' },
+  A5: { name: 'A5 \u2013 Quality Score',           desc: 'Bonus & work impact' }
+};
+var refreshTimer = null;
+
+window.onload = function() {
+  var saved = localStorage.getItem('wiom_tracking_url');
+  if (saved) {
+    document.getElementById('endpoint').value = saved;
+    loadData();
+  }
+};
+
+function loadData() {
+  var url = document.getElementById('endpoint').value.trim();
+  if (!url) return;
+  localStorage.setItem('wiom_tracking_url', url);
+  document.getElementById('status').textContent = 'Loading\u2026';
+
+  var cbName = '_wcb' + Date.now();
+  var script = document.createElement('script');
+
+  window[cbName] = function(data) {
+    renderDashboard(data);
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  };
+
+  script.src = url + '?action=data&callback=' + cbName;
+  script.onerror = function() {
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+    fetch(url + '?action=data')
+      .then(function(r) { return r.json(); })
+      .then(renderDashboard)
+      .catch(function(err) {
+        document.getElementById('status').textContent = 'Error: ' + err.message;
+      });
+  };
+  document.body.appendChild(script);
+}
+
+function renderDashboard(data) {
+  if (!data || !data.summary) {
+    document.getElementById('status').textContent = 'Invalid response';
+    return;
+  }
+
+  var s = data.summary;
+  var tI = 0, tQ = 0, tC = 0, tW = 0;
+  var flows = ['A1','A2','A3','A4','A5'];
+
+  for (var i = 0; i < flows.length; i++) {
+    var f = s[flows[i]] || { inform:0, quiz:0, correct:0, wrong:0 };
+    tI += f.inform; tQ += f.quiz; tC += f.correct; tW += f.wrong;
+  }
+
+  var tA = tC + tW;
+  var cRate = tA > 0 ? Math.round(tC / tA * 100) : 0;
+  var qRate = tI > 0 ? Math.round(tQ / tI * 100) : 0;
+
+  document.getElementById('totals').innerHTML =
+    stat(tI, 'Impressions') + stat(tQ, 'Quiz Views') +
+    stat(tC, 'Correct') + stat(tW, 'Wrong') +
+    stat(qRate + '%', 'Quiz Rate') + stat(cRate + '%', 'Correct Rate');
+
+  var html = '';
+  for (var j = 0; j < flows.length; j++) {
+    var fk = flows[j];
+    var fd = s[fk] || { inform:0, quiz:0, correct:0, wrong:0 };
+    var info = FLOW_INFO[fk];
+    var att = fd.correct + fd.wrong;
+    var cr = att > 0 ? Math.round(fd.correct / att * 100) : 0;
+    var qr = fd.inform > 0 ? Math.round(fd.quiz / fd.inform * 100) : 0;
+
+    html += '<div class="card">' +
+      '<div class="card-head"><h3>' + info.name + '</h3><span class="tag">' + info.desc + '</span></div>' +
+      '<div class="card-body">' +
+      row('Impressions', fd.inform, '') +
+      row('Quiz Views', fd.quiz, '') +
+      row('Correct', fd.correct, 'green') +
+      row('Wrong', fd.wrong, 'red') +
+      row('Quiz Rate', qr + '%', '') +
+      row('Correct Rate', cr + '%', cr >= 50 ? 'green' : 'red') +
+      '<div class="bar-wrap"><div class="bar-fill" style="width:' + cr + '%"></div></div>' +
+      '</div></div>';
+  }
+
+  document.getElementById('grid').innerHTML = html;
+  document.getElementById('empty').style.display = tI > 0 ? 'none' : 'block';
+  document.getElementById('status').textContent =
+    'Updated: ' + new Date().toLocaleTimeString() + ' | Total events: ' + (data.total || 0);
+}
+
+function stat(v, l) {
+  return '<div class="stat"><div class="val">' + v + '</div><div class="lbl">' + l + '</div></div>';
+}
+function row(k, v, c) {
+  return '<div class="metric"><span class="k">' + k + '</span><span class="v' + (c ? ' ' + c : '') + '">' + v + '</span></div>';
+}
+function toggleRefresh() {
+  if (document.getElementById('autoRefresh').checked) {
+    refreshTimer = setInterval(loadData, 30000);
+  } else {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+</script>
+</body>
+</html>

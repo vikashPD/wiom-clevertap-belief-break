@@ -2,105 +2,55 @@
 <html lang="hi">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>A2</title>
 <style>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 *{box-sizing:border-box;margin:0;padding:0}
-html{width:100%;height:100vh}
-body{
-  width:100%;min-height:100vh;
-  font-family:sans-serif;
-  font-size:15px;line-height:1.5;color:#161021;
-  background:#FAF9FC;overflow-x:hidden;
-}
-.screen{display:none;flex-direction:column;width:100%;min-height:100vh}
-.screen.active{display:flex}
-.pink-top{
-  background:#FFE5F6;display:flex;
-  justify-content:center;align-items:flex-end;
-  padding-bottom:20px;flex-shrink:0;
-}
+html,body{width:100%;height:100%;font-family:sans-serif;font-size:15px;line-height:1.5;color:#161021;background:#FAF9FC;overflow:hidden}
+a{text-decoration:none;color:inherit}
+.screen{display:none;flex-direction:column;position:absolute;top:0;left:0;width:100%;height:100%;background:#FAF9FC;z-index:1}
+#inform{display:flex;z-index:1}
+.screen:target{display:flex;z-index:10}
+.pink-top{background:#FFE5F6;display:flex;justify-content:center;align-items:flex-end;padding-bottom:20px;flex-shrink:0}
 .pink-top.large{height:200px}
 .pink-top.small{height:100px}
-.icon-circle{
-  background:#FFF;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-}
+.icon-circle{background:#FFF;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .icon-circle.large{width:80px;height:80px}
 .icon-circle.small{width:56px;height:56px}
 .icon-circle .material-icons{color:#D9008D}
 .icon-circle.large .material-icons{font-size:40px}
 .icon-circle.small .material-icons{font-size:28px}
-.content{
-  flex:1;display:flex;flex-direction:column;
-  padding:22px 20px 24px;overflow-y:auto;
-}
+.content{flex:1;display:flex;flex-direction:column;padding:22px 20px 24px;overflow-y:auto}
 .title{font-size:20px;line-height:1.3;font-weight:700;margin-bottom:14px}
 .body-list{list-style:none;padding:0;margin:0 0 14px}
-.body-list li{
-  position:relative;padding-left:20px;margin-bottom:10px;
-  font-size:14px;line-height:1.6;color:#5C5570;
-}
-.body-list li::before{
-  content:"\2022";position:absolute;left:0;top:-2px;
-  color:#D9008D;font-weight:700;font-size:20px;
-}
+.body-list li{position:relative;padding-left:20px;margin-bottom:10px;font-size:14px;line-height:1.6;color:#5C5570}
+.body-list li::before{content:"\2022";position:absolute;left:0;top:-2px;color:#D9008D;font-weight:700;font-size:20px}
 .question{font-size:17px;line-height:1.3;font-weight:700;margin-bottom:16px}
 .question.dim{font-size:15px;font-weight:600;color:#5C5570;margin-bottom:12px}
 .spacer{flex:1;min-height:20px}
-.cta{
-  background:#D9008D;color:#FFF;
-  border:none;border-radius:12px;padding:14px;
-  font-size:15px;font-weight:600;cursor:pointer;
-  width:100%;min-height:48px;
-  font-family:sans-serif;
-  -webkit-tap-highlight-color:transparent;
-}
-.cta.disabled{background:#D7D3E0;color:#A7A1B2;pointer-events:none}
-.opt{
-  border:1.5px solid #E8E4F0;background:#FFF;
-  border-radius:12px;padding:13px 16px;margin-bottom:8px;
-  display:flex;align-items:center;gap:12px;
-  font-size:14px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.opt .radio{
-  width:18px;height:18px;border:2px solid #A7A1B2;
-  border-radius:50%;flex-shrink:0;
-}
-.opt.selected{border-color:#D9008D;background:#FFE5F6;font-weight:600}
-.opt.selected .radio{background:#D9008D;border-color:#D9008D;box-shadow:inset 0 0 0 3px #fff}
-.opt.correct{border-color:#008043;background:#E1FAED;font-weight:600}
-.opt.correct .radio{background:#008043;border-color:#008043;box-shadow:inset 0 0 0 3px #fff}
-.opt.wrong-pick{border-color:#D92130;background:#FFE5E7;font-weight:600}
-.opt.wrong-pick .radio{background:#D92130;border-color:#D92130;box-shadow:inset 0 0 0 3px #fff}
-.correction-box{
-  background:#E1FAED;border-radius:12px;
-  padding:14px 16px;color:#008043;
-  font-size:13px;line-height:1.6;font-weight:600;margin:14px 0;
-}
-.right-stack{
-  flex:1;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;padding:20px;
-  min-height:300px;
-}
-.check-big{
-  width:80px;height:80px;background:#008043;
-  border-radius:50%;display:flex;align-items:center;
-  justify-content:center;margin-bottom:16px;
-}
-.check-big .material-icons{color:#fff;font-size:48px}
-.right-stack h3{font-size:24px;font-weight:700;color:#008043}
-.right-stack .auto-dismiss{margin-top:10px;font-size:12px;color:#5C5570}
+.cta{display:flex;align-items:center;justify-content:center;background:#D9008D;color:#FFF;border-radius:12px;padding:14px;font-size:15px;font-weight:600;width:100%;min-height:48px;text-align:center}
+.opt{display:flex;align-items:center;gap:12px;border:1.5px solid #E8E4F0;background:#FFF;border-radius:12px;padding:13px 16px;margin-bottom:8px;font-size:14px}
+.opt .radio{width:18px;height:18px;border:2px solid #A7A1B2;border-radius:50%;flex-shrink:0}
+.opt:active{border-color:#D9008D;background:#FFE5F6}
+.opt:active .radio{background:#D9008D;border-color:#D9008D;box-shadow:inset 0 0 0 3px #fff}
+.opt.ok{border-color:#008043;background:#E1FAED;font-weight:600}
+.opt.ok .radio{background:#008043;border-color:#008043;box-shadow:inset 0 0 0 3px #fff}
+.opt.bad{border-color:#D92130;background:#FFE5E7;font-weight:600}
+.opt.bad .radio{background:#D92130;border-color:#D92130;box-shadow:inset 0 0 0 3px #fff}
+.fix{background:#E1FAED;border-radius:12px;padding:14px 16px;color:#008043;font-size:13px;line-height:1.6;font-weight:600;margin:14px 0}
+.rs{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+.cb{width:80px;height:80px;background:#008043;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.cb .material-icons{color:#fff;font-size:48px}
+.rs h3{font-size:24px;font-weight:700;color:#008043}
+.t{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
 
-<div class="screen active" id="inform">
-  <div class="pink-top large">
-    <div class="icon-circle large"><span class="material-icons">account_balance_wallet</span></div>
-  </div>
+<div class="screen" id="inform">
+  <div class="t" style="background-image:url('PASTE_TRACKING_URL_HERE?flow=A2&screen=inform')"></div>
+  <div class="pink-top large"><div class="icon-circle large"><span class="material-icons">account_balance_wallet</span></div></div>
   <div class="content">
     <div class="title">पहली कमाई आपके wallet में आ गई</div>
     <ul class="body-list">
@@ -108,115 +58,58 @@ body{
       <li>यह नियम आपकी कमाई को safe रखता है</li>
     </ul>
     <div class="spacer"></div>
-    <button class="cta" id="informBtn">ठीक है</button>
+    <a href="#quiz" class="cta">ठीक है</a>
   </div>
 </div>
 
 <div class="screen" id="quiz">
-  <div class="pink-top small">
-    <div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div>
-  </div>
+  <div class="t" style="background-image:url('PASTE_TRACKING_URL_HERE?flow=A2&screen=quiz')"></div>
+  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div></div>
   <div class="content">
     <div class="question">पैसे कब निकाल सकते हैं?</div>
-    <div class="opt" id="opt0" data-idx="0">
-      <span class="radio"></span><span>जब चाहें, कभी भी</span>
-    </div>
-    <div class="opt" id="opt1" data-idx="1">
-      <span class="radio"></span><span>हफ़्ते में 2 बार, तय दिनों पर</span>
-    </div>
-    <div class="opt" id="opt2" data-idx="2">
-      <span class="radio"></span><span>हर महीने के अंत में</span>
-    </div>
-    <div class="spacer"></div>
-    <button class="cta disabled" id="submitBtn">जवाब दें</button>
+    <a href="#wrong0" class="opt"><span class="radio"></span><span>जब चाहें, कभी भी</span></a>
+    <a href="#right" class="opt"><span class="radio"></span><span>हफ़्ते में 2 बार, तय दिनों पर</span></a>
+    <a href="#wrong2" class="opt"><span class="radio"></span><span>हर महीने के अंत में</span></a>
   </div>
 </div>
 
 <div class="screen" id="right">
-  <div class="pink-top small">
-    <div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div>
-  </div>
+  <div class="t" style="background-image:url('PASTE_TRACKING_URL_HERE?flow=A2&screen=right')"></div>
+  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div></div>
   <div class="content">
-    <div class="right-stack">
-      <div class="check-big"><span class="material-icons">check</span></div>
+    <div class="rs">
+      <div class="cb"><span class="material-icons">check</span></div>
       <h3>सही</h3>
-      <div class="auto-dismiss">auto-dismiss · 1.5s</div>
     </div>
+    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
   </div>
 </div>
 
-<div class="screen" id="wrong">
-  <div class="pink-top small">
-    <div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div>
-  </div>
+<div class="screen" id="wrong0">
+  <div class="t" style="background-image:url('PASTE_TRACKING_URL_HERE?flow=A2&screen=wrong0')"></div>
+  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div></div>
   <div class="content">
     <div class="question dim">पैसे कब निकाल सकते हैं?</div>
-    <div class="opt wrong-pick">
-      <span class="radio"></span><span id="wrongLabel"></span>
-    </div>
-    <div class="opt correct">
-      <span class="radio"></span><span>हफ़्ते में 2 बार, तय दिनों पर</span>
-    </div>
-    <div class="correction-box">सही जवाब: हफ़्ते में 2 बार, तय दिनों पर ही पैसे निकाल सकते हैं। बाकी दिनों में withdraw button काम नहीं करेगा। यह नियम आपकी कमाई को safe रखने के लिए है।</div>
+    <div class="opt bad"><span class="radio"></span><span>जब चाहें, कभी भी</span></div>
+    <div class="opt ok"><span class="radio"></span><span>हफ़्ते में 2 बार, तय दिनों पर</span></div>
+    <div class="fix">सही जवाब: हफ़्ते में 2 बार, तय दिनों पर ही पैसे निकाल सकते हैं। बाकी दिनों में withdraw button काम नहीं करेगा। यह नियम आपकी कमाई को safe रखने के लिए है।</div>
     <div class="spacer"></div>
-    <button class="cta" id="wrongBtn">ठीक है</button>
+    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
   </div>
 </div>
 
-<script>
-(function(){
-  var CORRECT = 1;
-  var selected = -1;
-  var optLabels = [
-    "\u091C\u092C \u091A\u093E\u0939\u0947\u0902, \u0915\u092D\u0940 \u092D\u0940",
-    "\u0939\u092B\u093C\u094D\u0924\u0947 \u092E\u0947\u0902 2 \u092C\u093E\u0930, \u0924\u092F \u0926\u093F\u0928\u094B\u0902 \u092A\u0930",
-    "\u0939\u0930 \u092E\u0939\u0940\u0928\u0947 \u0915\u0947 \u0905\u0902\u0924 \u092E\u0947\u0902"
-  ];
+<div class="screen" id="wrong2">
+  <div class="t" style="background-image:url('PASTE_TRACKING_URL_HERE?flow=A2&screen=wrong2')"></div>
+  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">account_balance_wallet</span></div></div>
+  <div class="content">
+    <div class="question dim">पैसे कब निकाल सकते हैं?</div>
+    <div class="opt bad"><span class="radio"></span><span>हर महीने के अंत में</span></div>
+    <div class="opt ok"><span class="radio"></span><span>हफ़्ते में 2 बार, तय दिनों पर</span></div>
+    <div class="fix">सही जवाब: हफ़्ते में 2 बार, तय दिनों पर ही पैसे निकाल सकते हैं। बाकी दिनों में withdraw button काम नहीं करेगा। यह नियम आपकी कमाई को safe रखने के लिए है।</div>
+    <div class="spacer"></div>
+    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
+  </div>
+</div>
 
-  function show(id) {
-    var screens = document.querySelectorAll('.screen');
-    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
-    document.getElementById(id).classList.add('active');
-  }
-
-  function selectOpt(idx) {
-    var opts = document.querySelectorAll('#quiz .opt');
-    for (var i = 0; i < opts.length; i++) opts[i].classList.remove('selected');
-    document.getElementById('opt' + idx).classList.add('selected');
-    selected = idx;
-    document.getElementById('submitBtn').classList.remove('disabled');
-  }
-
-  function dismiss() {
-    fireEvent("A2_dismissed");
-    try { if (window.CleverTap) CleverTap.closeInApp(); } catch(e) {}
-    try { if (window.wizrocket) wizrocket.closeInApp(); } catch(e) {}
-  }
-
-  function fireEvent(n, p) {
-    try { if (window.CleverTap) CleverTap.pushEvent(n, p || {}); } catch(e) {}
-    try { if (window.wizrocket) wizrocket.pushEvent(n, p || {}); } catch(e) {}
-  }
-
-  function tap(id, fn) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', function(e) { e.preventDefault(); fn(); }, false);
-    el.addEventListener('touchend', function(e) { e.preventDefault(); fn(); }, false);
-  }
-
-  tap('informBtn', function() { fireEvent("A2_inform_ok"); show('quiz'); });
-  tap('opt0', function() { selectOpt(0); });
-  tap('opt1', function() { selectOpt(1); });
-  tap('opt2', function() { selectOpt(2); });
-  tap('submitBtn', function() {
-    if (selected < 0) return;
-    fireEvent("A2_quiz_answered", {answer: optLabels[selected], correct: selected === CORRECT ? "true" : "false"});
-    if (selected === CORRECT) { show('right'); setTimeout(function() { dismiss(); }, 1500); }
-    else { document.getElementById('wrongLabel').textContent = optLabels[selected]; show('wrong'); }
-  });
-  tap('wrongBtn', function() { dismiss(); });
-})();
-</script>
 </body>
 </html>
