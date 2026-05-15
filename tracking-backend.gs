@@ -54,6 +54,40 @@ function doGet(e) {
   return ContentService.createTextOutput('ok');
 }
 
+/* ---- maintenance helpers (run manually from Apps Script editor) ---- */
+
+/**
+ * Wipe all event rows, keep the header. Run before going live to clear test hits.
+ * In the Apps Script editor: select `resetSheet` from the function dropdown, click Run.
+ */
+function resetSheet() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sh) return;
+  var last = sh.getLastRow();
+  if (last < 2) return;
+  sh.deleteRows(2, last - 1);
+  Logger.log('Cleared ' + (last - 1) + ' rows from ' + SHEET_NAME);
+}
+
+/**
+ * Delete only rows matching a flow + screen pair. Useful for surgical cleanup
+ * of a single bad test hit without wiping everything.
+ *   deleteHits('A1', 'inform')  → removes every A1.inform row
+ */
+function deleteHits(flow, screen) {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  if (!sh || sh.getLastRow() < 2) return;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues();
+  var removed = 0;
+  for (var r = rows.length - 1; r >= 0; r--) {
+    if (rows[r][1] === flow && rows[r][2] === screen) {
+      sh.deleteRow(r + 2);
+      removed++;
+    }
+  }
+  Logger.log('Removed ' + removed + ' rows for ' + flow + '.' + screen);
+}
+
 /* ---- internal helpers ---- */
 
 function getSheet_() {
