@@ -43,73 +43,67 @@ a{text-decoration:none;color:inherit}
 .cb{width:80px;height:80px;background:#008043;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
 .cb .material-icons{color:#fff;font-size:48px}
 .rs h3{font-size:24px;font-weight:700;color:#008043}
-.t{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
 
 <div class="screen" id="inform">
-  <div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=A5&screen=inform')"></div>
-  <div class="pink-top large"><div class="icon-circle large"><span class="material-icons">star</span></div></div>
-  <div class="content">
-    <div class="title">आपका quality score active हो गया</div>
-    <ul class="body-list">
-      <li>हर task पर आपका काम quality score बनाता है</li>
-      <li>अच्छा score = बोनस ज़्यादा + नया काम ज़्यादा</li>
-      <li>कमज़ोर score = बोनस कम + काम कम</li>
-    </ul>
-    <div class="spacer"></div>
-    <a href="#quiz" class="cta">ठीक है</a>
-  </div>
+<div class="pink-top large"><div class="icon-circle large"><span class="material-icons">star</span></div></div>
+<div class="content">
+<div class="title">आपका quality score active हो गया</div>
+<ul class="body-list">
+<li>हर task पर आपका काम quality score बनाता है</li>
+<li>अच्छा score = बोनस ज़्यादा + नया काम ज़्यादा</li>
+<li>कमज़ोर score = बोनस कम + काम कम</li>
+</ul>
+<div class="spacer"></div>
+<a href="#quiz" class="cta">ठीक है</a>
+</div>
 </div>
 
 <div class="screen" id="quiz">
-  <div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=A5&screen=quiz')"></div>
-  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
-  <div class="content">
-    <div class="question">Quality score का असर क्या है?</div>
-    <a href="#wrong0" class="opt"><span class="radio"></span><span>कुछ भी नहीं — काम तो मिलेगा ही</span></a>
-    <a href="#right" class="opt"><span class="radio"></span><span>बोनस और नया काम दोनों पर</span></a>
-    <a href="#wrong2" class="opt"><span class="radio"></span><span>सिर्फ़ बोनस पर, काम पर नहीं</span></a>
-  </div>
+<div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
+<div class="content">
+<div class="question">Quality Score का असर कहाँ पड़ेगा?</div>
+<a href="#wrong0" class="opt"><span class="radio"></span><span>कहीं नहीं — ये तो बस दिखावे का तमगा है 😄</span></a>
+<a href="#right" class="opt"><span class="radio"></span><span>बोनस और नया काम — दोनों पर सीधा</span></a>
+<a href="#wrong2" class="opt"><span class="radio"></span><span>मेरी किस्मत और आज के मौसम पर ☔</span></a>
+</div>
 </div>
 
 <div class="screen" id="right">
-  <div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=A5&screen=right')"></div>
-  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
-  <div class="content">
-    <div class="rs">
-      <div class="cb"><span class="material-icons">check</span></div>
-      <h3>सही</h3>
-    </div>
-    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
-  </div>
+<div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
+<div class="content">
+<div class="rs">
+<div class="cb"><span class="material-icons">check</span></div>
+<h3>सही</h3>
+</div>
+<a href="clevertap://closeInApp" class="cta">ठीक है</a>
+</div>
 </div>
 
 <div class="screen" id="wrong0">
-  <div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=A5&screen=wrong0')"></div>
-  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
-  <div class="content">
-    <div class="question dim">Quality score का असर क्या है?</div>
-    <div class="opt bad"><span class="radio"></span><span>कुछ भी नहीं — काम तो मिलेगा ही</span></div>
-    <div class="opt ok"><span class="radio"></span><span>बोनस और नया काम दोनों पर</span></div>
-    <div class="fix">सही जवाब: Quality score दोनों चीज़ों पर सीधा असर करता है — बोनस की राशि भी, और नया काम कितना मिलेगा वो भी। हर task पर अच्छा काम करना ही असली रास्ता है।</div>
-    <div class="spacer"></div>
-    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
-  </div>
+<div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
+<div class="content">
+<div class="question dim">Quality Score का असर कहाँ पड़ेगा?</div>
+<div class="opt bad"><span class="radio"></span><span>कहीं नहीं — ये तो बस दिखावे का तमगा है 😄</span></div>
+<div class="opt ok"><span class="radio"></span><span>बोनस और नया काम — दोनों पर सीधा</span></div>
+<div class="fix">सही जवाब: ये दिखावे का तमगा नहीं है 😄 — Quality Score सीधे आपके बोनस और नए काम पर असर डालता है। अच्छा Score = ज़्यादा बोनस + ज़्यादा काम।</div>
+<div class="spacer"></div>
+<a href="clevertap://closeInApp" class="cta">ठीक है</a>
+</div>
 </div>
 
 <div class="screen" id="wrong2">
-  <div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=A5&screen=wrong2')"></div>
-  <div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
-  <div class="content">
-    <div class="question dim">Quality score का असर क्या है?</div>
-    <div class="opt bad"><span class="radio"></span><span>सिर्फ़ बोनस पर, काम पर नहीं</span></div>
-    <div class="opt ok"><span class="radio"></span><span>बोनस और नया काम दोनों पर</span></div>
-    <div class="fix">सही जवाब: Quality score दोनों चीज़ों पर सीधा असर करता है — बोनस की राशि भी, और नया काम कितना मिलेगा वो भी। हर task पर अच्छा काम करना ही असली रास्ता है।</div>
-    <div class="spacer"></div>
-    <a href="clevertap://closeInApp" class="cta">ठीक है</a>
-  </div>
+<div class="pink-top small"><div class="icon-circle small"><span class="material-icons">star</span></div></div>
+<div class="content">
+<div class="question dim">Quality Score का असर कहाँ पड़ेगा?</div>
+<div class="opt bad"><span class="radio"></span><span>मेरी किस्मत और आज के मौसम पर ☔</span></div>
+<div class="opt ok"><span class="radio"></span><span>बोनस और नया काम — दोनों पर सीधा</span></div>
+<div class="fix">सही जवाब: किस्मत या मौसम का इसमें कोई हाथ नहीं 😄 — Quality Score ही तय करता है कि बोनस कितना और नया काम कितना मिलेगा। हर task अच्छे से करना ही रास्ता है।</div>
+<div class="spacer"></div>
+<a href="clevertap://closeInApp" class="cta">ठीक है</a>
+</div>
 </div>
 
 </body>
