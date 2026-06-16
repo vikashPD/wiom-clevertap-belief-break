@@ -62,6 +62,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="totals" id="totals"></div>
 <div class="grid" id="grid"></div>
 
+<h2 id="bonusTitle" style="display:none;font-size:16px;font-weight:700;color:#D9008D;padding:8px 20px 0">Bonus Video Quiz &mdash; Seva Sthiti</h2>
+<div class="grid" id="bonusGrid"></div>
+
 <div class="footer">Wiom Belief Break Tracker</div>
 
 <script>
@@ -163,6 +166,25 @@ function renderDashboard(data) {
   }
 
   document.getElementById('grid').innerHTML = html;
+
+  // ---- Bonus Video Quiz section (flow = BONUS) ----
+  var b = sm.BONUS || {inform:0,quiz:0,correct:0,wrong:0};
+  var bA = b.correct + b.wrong;
+  var bcr = bA>0 ? Math.round(b.correct/bA*100) : 0;
+  var bqr = b.inform>0 ? Math.round(b.quiz/b.inform*100) : 0;
+  document.getElementById('bonusTitle').style.display = 'block';
+  document.getElementById('bonusGrid').innerHTML =
+    '<div class="card">'+
+    '<div class="card-head"><h3>Seva Sthiti Video Quiz</h3><span class="tag">BONUS</span></div>'+
+    '<div class="card-body">'+
+    rw('Impressions',b.inform,'')+
+    rw('Reached Quiz (after 45s)',b.quiz,'')+
+    rw('Correct',b.correct,'green')+
+    rw('Wrong',b.wrong,'red')+
+    rw('Reach Rate',bqr+'%','')+
+    rw('Correct Rate',bcr+'%',bcr>=50?'green':'red')+
+    '<div class="bar-wrap"><div class="bar-fill" style="width:'+bcr+'%"></div></div>'+
+    '</div></div>';
 
   document.getElementById('status').textContent =
     'Updated: '+new Date().toLocaleTimeString()+' | Events: '+(data.total||0);

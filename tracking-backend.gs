@@ -104,7 +104,7 @@ function getSheet_() {
 function buildSummary_(fromDate, toDate) {
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   var out = { summary: {}, total: 0, updated: new Date().toISOString() };
-  var flows = ['A1','A2','A3','A4','A5'];
+  var flows = ['A1','A2','A3','A4','A5','BONUS'];
 
   for (var i = 0; i < flows.length; i++) {
     out.summary[flows[i]] = { inform: 0, quiz: 0, correct: 0, wrong: 0 };
