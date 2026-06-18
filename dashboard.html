@@ -172,7 +172,6 @@ function renderDashboard(data) {
   var bA = b.correct + b.wrong;
   var bcr = bA>0 ? Math.round(b.correct/bA*100) : 0;
   var bqr = b.inform>0 ? Math.round(b.quiz/b.inform*100) : 0;
-  var bu = (data.bonus) || {uniqueViewers:0,uniqueCompleters:0,avgViewsToComplete:0,dist:{one:0,two:0,threeplus:0}};
   document.getElementById('bonusTitle').style.display = 'block';
   document.getElementById('bonusGrid').innerHTML =
     '<div class="card">'+
@@ -185,16 +184,6 @@ function renderDashboard(data) {
     rw('Reach Rate',bqr+'%','')+
     rw('Correct Rate',bcr+'%',bcr>=50?'green':'red')+
     '<div class="bar-wrap"><div class="bar-fill" style="width:'+bcr+'%"></div></div>'+
-    '</div></div>'+
-    '<div class="card">'+
-    '<div class="card-head"><h3>Unique Users &amp; Repeat Views</h3><span class="tag">UNIQUE</span></div>'+
-    '<div class="card-body">'+
-    rw('Unique Video Viewers',bu.uniqueViewers,'')+
-    rw('Unique Completers',bu.uniqueCompleters,'green')+
-    rw('Avg Views to Complete',bu.avgViewsToComplete,'')+
-    rw('Completed in 1 view',bu.dist.one,'')+
-    rw('Completed in 2 views',bu.dist.two,'')+
-    rw('Completed in 3+ views',bu.dist.threeplus,'')+
     '</div></div>';
 
   document.getElementById('status').textContent =
