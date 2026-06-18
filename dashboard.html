@@ -224,7 +224,7 @@ function renderDashboard(data) {
       (rateOk ? rw('Completion Rate',cconv+'%',cconv>=50?'green':'red') : '')+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
       'Unique users via CleverTap (last 60 days). Note: <b>Video Players</b> under-counts — the play event is optional/flaky, so use <b>Completers</b> as the reliable unique reach.'+
-      (ct.updated ? '<br>Synced: '+ct.updated.substring(0,16).replace('T',' ') : '')+
+      (ct.updated ? '<br>Synced: '+toIST(ct.updated)+' IST' : '')+
       '</div>'+
       '</div></div>';
   }
@@ -289,6 +289,14 @@ function st(v,l) {
 }
 function rw(k,v,c) {
   return '<div class="metric"><span class="k">'+k+'</span><span class="v'+(c?' '+c:'')+'">'+v+'</span></div>';
+}
+function toIST(iso) {
+  try {
+    var d = new Date(iso);
+    var ist = new Date(d.getTime() + (5*60+30)*60000);
+    var p = function(n){ return (n<10?'0':'')+n; };
+    return ist.getUTCFullYear()+'-'+p(ist.getUTCMonth()+1)+'-'+p(ist.getUTCDate())+' '+p(ist.getUTCHours())+':'+p(ist.getUTCMinutes());
+  } catch(e) { return (iso||'').substring(0,16).replace('T',' '); }
 }
 function toggleRefresh() {
   if (document.getElementById('autoRefresh').checked) {
