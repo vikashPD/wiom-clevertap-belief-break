@@ -212,15 +212,20 @@ function renderDashboard(data) {
     '</div></div>';
   var ct = data.ct;
   if (ct) {
-    var cconv = (ct.viewers>0) ? Math.round((ct.completers/ct.viewers)*100) : 0;
+    // Completion rate only makes sense when video-players >= completers; bonus-video-played under-counts, so guard it
+    var rateOk = (ct.viewers > 0 && ct.completers <= ct.viewers);
+    var cconv = rateOk ? Math.round((ct.completers/ct.viewers)*100) : null;
     bonusHtml +=
       '<div class="card">'+
       '<div class="card-head"><h3>CleverTap Unique Users</h3><span class="tag">UNIQUE</span></div>'+
       '<div class="card-body">'+
-      rw('Unique Video Players',ct.viewers,'')+
       rw('Unique Completers',ct.completers,'green')+
-      rw('Completion Rate',cconv+'%',cconv>=50?'green':'red')+
-      (ct.updated ? '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">CleverTap synced: '+ct.updated.substring(0,16).replace('T',' ')+' (last 60 days, hourly)</div>' : '')+
+      rw('Unique Video Players',ct.viewers,'')+
+      (rateOk ? rw('Completion Rate',cconv+'%',cconv>=50?'green':'red') : '')+
+      '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
+      'Unique users via CleverTap (last 60 days). Note: <b>Video Players</b> under-counts — the play event is optional/flaky, so use <b>Completers</b> as the reliable unique reach.'+
+      (ct.updated ? '<br>Synced: '+ct.updated.substring(0,16).replace('T',' ') : '')+
+      '</div>'+
       '</div></div>';
   }
   document.getElementById('bonusGrid').innerHTML = bonusHtml;
