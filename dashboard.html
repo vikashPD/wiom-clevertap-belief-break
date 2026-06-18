@@ -191,7 +191,8 @@ function renderDashboard(data) {
   document.getElementById('grid').innerHTML = html;
 
   // ---- Bonus Video Quiz section (flow = BONUS) ----
-  var b = sm.BONUS || {inform:0,quiz:0,correct:0,wrong:0};
+  var b = sm.BONUS || {inform:0,quiz:0,correct:0,wrong:0,play:0};
+  var bplay = b.play || 0;
   var bA = b.correct + b.wrong;
   var bcr = bA>0 ? Math.round(b.correct/bA*100) : 0;
   var bqr = b.inform>0 ? Math.round(b.quiz/b.inform*100) : 0;
@@ -201,6 +202,7 @@ function renderDashboard(data) {
     '<div class="card-head"><h3>Seva Sthiti Video Quiz</h3><span class="tag">FUNNEL</span></div>'+
     '<div class="card-body">'+
     rw('Impressions',b.inform,'')+
+    rw('Video Plays (total)',bplay,'')+
     rw('Reached Quiz (after 45s)',b.quiz,'')+
     rw('Correct',b.correct,'green')+
     rw('Wrong',b.wrong,'red')+
