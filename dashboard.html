@@ -213,7 +213,6 @@ function renderDashboard(data) {
   var ct = data.ct;
   if (ct) {
     var ctShown   = ct.shown || 0;                    // inApp_Shown, campaign 1781662006
-    var ctViewers = (ct.viewers || 0) + 180;          // +180 backfill (bonus-video-played under-counts)
     var ctConv = (ctShown > 0) ? Math.round((ct.completers/ctShown)*100) : null;
     bonusHtml +=
       '<div class="card">'+
@@ -222,7 +221,6 @@ function renderDashboard(data) {
       rw('Unique Users Shown',ctShown,'')+
       rw('Unique Completers',ct.completers,'green')+
       (ctConv!=null ? rw('Conversion Rate',ctConv+'%',ctConv>=25?'green':'red') : '')+
-      rw('Unique Video Players',ctViewers,'')+
       '<div class="bar-wrap"><div class="bar-fill" style="width:'+(ctConv||0)+'%"></div></div>'+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
       'Shown = inApp_Shown (campaign 1781662006). Conversion = Completers ÷ Shown.'+
