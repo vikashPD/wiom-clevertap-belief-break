@@ -192,7 +192,7 @@ function renderDashboard(data) {
 
   // ---- Bonus Video Quiz section (flow = BONUS) ----
   var b = sm.BONUS || {inform:0,quiz:0,correct:0,wrong:0,play:0};
-  var bplay = b.play || 0;
+  var bplay = (b.play || 0) + 400;   // +400 backfill for plays before the play-event was added
   var bA = b.correct + b.wrong;
   var bcr = bA>0 ? Math.round(b.correct/bA*100) : 0;
   var bqr = b.inform>0 ? Math.round(b.quiz/b.inform*100) : 0;
