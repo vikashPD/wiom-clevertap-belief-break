@@ -212,18 +212,20 @@ function renderDashboard(data) {
     '</div></div>';
   var ct = data.ct;
   if (ct) {
-    var ctViewers = (ct.viewers || 0) + 180;   // +180 backfill for plays before the play-event was added
-    var rateOk = (ctViewers > 0 && ct.completers <= ctViewers);
-    var cconv = rateOk ? Math.round((ct.completers/ctViewers)*100) : null;
+    var ctShown   = ct.shown || 0;                    // inApp_Shown, campaign 1781662006
+    var ctViewers = (ct.viewers || 0) + 180;          // +180 backfill (bonus-video-played under-counts)
+    var ctConv = (ctShown > 0) ? Math.round((ct.completers/ctShown)*100) : null;
     bonusHtml +=
       '<div class="card">'+
       '<div class="card-head"><h3>CleverTap Unique Users</h3><span class="tag">UNIQUE</span></div>'+
       '<div class="card-body">'+
+      rw('Unique Users Shown',ctShown,'')+
       rw('Unique Completers',ct.completers,'green')+
+      (ctConv!=null ? rw('Conversion Rate',ctConv+'%',ctConv>=25?'green':'red') : '')+
       rw('Unique Video Players',ctViewers,'')+
-      (rateOk ? rw('Completion Rate',cconv+'%',cconv>=50?'green':'red') : '')+
+      '<div class="bar-wrap"><div class="bar-fill" style="width:'+(ctConv||0)+'%"></div></div>'+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
-      'Unique users via CleverTap (last 60 days). Note: <b>Video Players</b> under-counts — the play event is optional/flaky, so use <b>Completers</b> as the reliable unique reach.'+
+      'Shown = inApp_Shown (campaign 1781662006). Conversion = Completers ÷ Shown.'+
       (ct.updated ? '<br>Synced: '+toIST(ct.updated)+' IST' : '')+
       '</div>'+
       '</div></div>';
