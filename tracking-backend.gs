@@ -24,8 +24,8 @@ var SHEET_NAME = 'Events';
  * "Passcode" (NOT the SDK Account Token). Needed only for the server-side push
  * of bonus-video-played / quiz-completed-bonus-seva (bridge-independent).
  */
-var CT_ACCOUNT_ID = '44Z-644-777Z';
-var CT_PASSCODE   = 'AAK-SAA-ITEL';
+var CT_ACCOUNT_ID = 'YOUR_CT_ACCOUNT_ID';   // CleverTap → Settings → Project
+var CT_PASSCODE   = 'YOUR_CT_PASSCODE';      // server Passcode (keep secret; do NOT commit real value to a public repo)
 var CT_REGION     = 'eu1';
 
 function ctPushEvent_(identity, evtName) {
