@@ -19,6 +19,28 @@
 
 var SHEET_NAME = 'Events';
 
+/* ---- CleverTap server-side event push (region eu1) ----
+ * Fill these from CleverTap → Settings → Project. The PASSCODE is the server
+ * "Passcode" (NOT the SDK Account Token). Needed only for the server-side push
+ * of bonus-video-played / quiz-completed-bonus-seva (bridge-independent).
+ */
+var CT_ACCOUNT_ID = '44Z-644-777Z';
+var CT_PASSCODE   = 'AAK-SAA-ITEL';
+var CT_REGION     = 'eu1';
+
+function ctPushEvent_(identity, evtName) {
+  if (!identity) return;
+  try {
+    UrlFetchApp.fetch('https://' + CT_REGION + '.api.clevertap.com/1/upload', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'X-CleverTap-Account-Id': CT_ACCOUNT_ID, 'X-CleverTap-Passcode': CT_PASSCODE },
+      payload: JSON.stringify({ d: [ { identity: String(identity), type: 'event', evtName: evtName } ] }),
+      muteHttpExceptions: true
+    });
+  } catch (err) {}
+}
+
 function doGet(e) {
   var p = e.parameter || {};
 
@@ -37,6 +59,8 @@ function doGet(e) {
   // Pixel tracking hit
   var flow   = String(p.flow   || '').replace(/[^A-Za-z0-9_-]/g, '').substring(0, 10);
   var screen = String(p.screen || '').replace(/[^A-Za-z0-9_-]/g, '').substring(0, 20);
+  var uid    = String(p.uid    || '').substring(0, 80);   // hashed token (sheet dedup)
+  var id     = String(p.id     || '').substring(0, 120);  // raw CleverTap identity (server-side push)
 
   if (flow && screen) {
     var sh  = getSheet_();
@@ -46,8 +70,16 @@ function doGet(e) {
       flow,
       screen,
       Utilities.formatDate(now, 'Asia/Kolkata', 'yyyy-MM-dd'),
-      parseInt(Utilities.formatDate(now, 'Asia/Kolkata', 'HH'), 10)
+      parseInt(Utilities.formatDate(now, 'Asia/Kolkata', 'HH'), 10),
+      uid
     ]);
+
+    // Server-side CleverTap events for the BONUS video+quiz (no JS bridge needed).
+    // Requires the in-app to send &id=<raw identity> (see bonus-quiz-video-serverside.html).
+    if (flow === 'BONUS' && id) {
+      if (screen === 'play') ctPushEvent_(id, 'bonus-video-played');
+      else if (screen === 'right' || screen === 'wrong0' || screen === 'wrong2') ctPushEvent_(id, 'quiz-completed-bonus-seva');
+    }
   }
 
   // Return minimal response (background-image request doesn't need valid image)
@@ -95,7 +127,7 @@ function getSheet_() {
   var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
-    sh.appendRow(['timestamp', 'flow', 'screen', 'date', 'hour']);
+    sh.appendRow(['timestamp', 'flow', 'screen', 'date', 'hour', 'uid']);
     sh.setFrozenRows(1);
   }
   return sh;
