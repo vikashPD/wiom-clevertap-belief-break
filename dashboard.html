@@ -50,6 +50,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .qopt{padding:7px 10px;border:1px solid #E8E4F0;border-radius:8px;margin-bottom:5px;color:#5C5570;line-height:1.4}
 .qopt.ok{border-color:#008043;background:#E1FAED;color:#008043;font-weight:600}
 .edu-fix{background:#E1FAED;border-radius:8px;padding:9px 11px;color:#008043;font-weight:600;line-height:1.55;margin-top:8px}
+.inactive-banner{background:#FFF6E9;color:#8A5200;font-size:11px;font-weight:700;letter-spacing:.3px;padding:7px 16px;border-bottom:1px solid #FCE2B6;text-transform:uppercase}
+.card.inactive{opacity:.85}
+.card.inactive .card-head{background:#F3EFE6}
+.card.inactive .card-head h3{color:#8A5200}
+.media{width:100%;border-radius:8px;background:#000;display:block;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -86,7 +91,7 @@ var FLOW_INFO = {
   A2: { name: 'A2 \u2013 Withdrawal Rules',      desc: 'Wed/Fri/Sun withdrawal' },
   A3: { name: 'A3 \u2013 Connection Activation', desc: 'PayG \u20B9300' },
   A4: { name: 'A4 \u2013 Pickup Completion',     desc: 'NetBox \u20B950' },
-  A5: { name: 'A5 \u2013 Quality Score',         desc: 'Bonus & work' }
+  A5: { name: 'A5 \u2013 Quality Score',         desc: 'Bonus & work', inactive: true }
 };
 
 var FLOW_FILE = {
@@ -173,8 +178,9 @@ function renderDashboard(data) {
     var cr = at>0 ? Math.round(fd.correct/at*100) : 0;
     var qr = fd.inform>0 ? Math.round(fd.quiz/fd.inform*100) : 0;
 
-    html += '<div class="card">'+
+    html += '<div class="card'+(info.inactive?' inactive':'')+'">'+
       '<div class="card-head"><h3>'+info.name+'</h3><span class="tag">'+info.desc+'</span></div>'+
+      (info.inactive ? '<div class="inactive-banner">⚠ Old campaign — not active currently</div>' : '')+
       '<div class="card-body">'+
       rw('Impressions',fd.inform,'')+
       rw('Quiz Attempts',fd.quiz,'')+
@@ -207,6 +213,8 @@ function renderDashboard(data) {
     rw('Reach Rate',bqr+'%','')+
     rw('Correct Rate',bcr+'%',bcr>=50?'green':'red')+
     '<div class="bar-wrap"><div class="bar-fill" style="width:'+bcr+'%"></div></div>'+
+    '<button class="see-content" onclick="toggleBonusContent()">📄 Video &amp; Quiz</button>'+
+    '<div class="cpanel" id="cpanel-BONUS" style="display:none">'+ bonusContentHtml() +'</div>'+
     '</div></div>';
   var ct = data.ct;
   if (ct) {
@@ -230,6 +238,29 @@ function renderDashboard(data) {
 
   document.getElementById('status').textContent =
     'Updated: '+new Date().toLocaleTimeString()+' | Events: '+(data.total||0);
+}
+
+function toggleBonusContent() {
+  var p = document.getElementById('cpanel-BONUS');
+  if (p) p.style.display = (p.style.display === 'none') ? 'block' : 'none';
+}
+
+function bonusContentHtml() {
+  var V = 'https://cdn.jsdelivr.net/gh/Vikaswiom/wiom-inapp-video@main/';
+  return '<div class="edu">'+
+    '<div class="edu-h">🎬 Education (video)</div>'+
+    '<div class="edu-t">नए सिस्टम में बोनस कैसे मिलेगा</div>'+
+    '<div style="font-size:12px;color:#5C5570;margin-bottom:8px">पूरा वीडियो ध्यान से देखें</div>'+
+    '<video class="media" controls preload="none" poster="'+V+'seva_sthiti_intro_poster.png" src="'+V+'seva_sthiti_intro.mp4"></video>'+
+    '</div>'+
+    '<div class="edu">'+
+    '<div class="edu-h">❓ Quiz</div>'+
+    '<div class="edu-q">बोनस पाने के लिए क्या ज़रूरी है?</div>'+
+    '<div class="qopt">○ रोज़ मोबाइल नंबर बदलते रहना</div>'+
+    '<div class="qopt">○ ऐप की भाषा बदलते रहना</div>'+
+    '<div class="qopt ok">✓ अच्छी सेवा स्थिति बनाए रखना</div>'+
+    '<div class="edu-fix">सही जवाब: बोनस पाने के लिए <b>अच्छी सेवा स्थिति बनाए रखना</b> ज़रूरी है। रोज़ मोबाइल नंबर या ऐप की भाषा बदलने से बोनस नहीं मिलता।</div>'+
+    '</div>';
 }
 
 function toggleContent(fk) {
