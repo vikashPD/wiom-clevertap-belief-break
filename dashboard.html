@@ -226,8 +226,8 @@ function renderDashboard(data) {
       '<div class="card-head"><h3>CleverTap Unique Users</h3><span class="tag">UNIQUE</span></div>'+
       '<div class="card-body">'+
       rw('Unique Users Shown',ctShown,'')+
-      rw('Unique Completers (Q1)',ct.completers,'green')+
-      (ct.completers2!=null ? rw('Unique Completers (Q2)',ct.completers2,'green') : '')+
+      rw('Unique Completers first question',ct.completers,'green')+
+      (ct.completers2!=null ? rw('Unique Completers second question',ct.completers2,'green') : '')+
       (ctConv!=null ? rw('Conversion Rate',ctConv+'%',ctConv>=25?'green':'red') : '')+
       '<div class="bar-wrap"><div class="bar-fill" style="width:'+(ctConv||0)+'%"></div></div>'+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
