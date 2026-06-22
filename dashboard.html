@@ -220,7 +220,8 @@ function renderDashboard(data) {
   if (ct) {
     var ctShown   = ct.shown || 0;                    // inApp_Shown, campaigns 1781662006 + 1781951938
     var ctCampaigns = (ct.campaigns && ct.campaigns.length) ? ct.campaigns.join(' + ') : '1781662006 + 1781951938';
-    var ctConv = (ctShown > 0) ? Math.round((ct.completers/ctShown)*100) : null;
+    var ctConv  = (ctShown > 0) ? Math.round((ct.completers/ctShown)*100) : null;
+    var ctConv2 = (ctShown > 0 && ct.completers2!=null) ? Math.round((ct.completers2/ctShown)*100) : null;
     bonusHtml +=
       '<div class="card">'+
       '<div class="card-head"><h3>CleverTap Unique Users</h3><span class="tag">UNIQUE</span></div>'+
@@ -228,7 +229,8 @@ function renderDashboard(data) {
       rw('Unique Users Shown',ctShown,'')+
       rw('Unique Completers first question',ct.completers,'green')+
       (ct.completers2!=null ? rw('Unique Completers second question',ct.completers2,'green') : '')+
-      (ctConv!=null ? rw('Conversion Rate',ctConv+'%',ctConv>=25?'green':'red') : '')+
+      (ctConv!=null ? rw('Conversion Rate first question',ctConv+'%',ctConv>=25?'green':'red') : '')+
+      (ctConv2!=null ? rw('Conversion Rate second question',ctConv2+'%',ctConv2>=25?'green':'red') : '')+
       '<div class="bar-wrap"><div class="bar-fill" style="width:'+(ctConv||0)+'%"></div></div>'+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
       'Shown = inApp_Shown (campaigns '+ctCampaigns+'). Conversion = Completers ÷ Shown.'+
