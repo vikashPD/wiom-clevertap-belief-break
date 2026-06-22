@@ -4,10 +4,35 @@ CleverTap custom-HTML in-app: mandatory video (45s countdown) → quiz. Tracks v
 pixel beacons to a Google Apps Script backend (`tracking-backend.gs`) which writes
 to a Google Sheet and (optionally) pushes events into CleverTap.
 
+## ✅ CONFIRMED WORKING FIX (22-Jun-2026): retry pushEvent with back-off
+`bonus-quiz-video.html` now contains the **confirmed-working** build. Root cause finally
+identified: **`window.CleverTap` is present for real users, but it attaches a moment AFTER
+page load** — so a single immediate `pushEvent` (and the old `ce_none` check) ran too early
+and missed it. The fix is a small retry helper:
+
+```js
+function h(name){            // retry until the bridge is ready, max 6 tries
+  if(p[name]) return;
+  p[name]={sent:false,attempts:0};
+  (function go(){
+    var s=p[name];
+    if(s.sent) return;
+    try{ if(window.CleverTap && window.CleverTap.pushEvent){
+      window.CleverTap.pushEvent(name); s.sent=true; w("ct-"+name); return;  // fires ct-<event> beacon on success
+    }}catch(e){}
+    s.attempts++; if(s.attempts<6) setTimeout(go, 250*s.attempts);  // back-off: 250,500,750…ms
+  })();
+}
+```
+- Called as `h("bonus-video-played")` (on play, +300ms) and `h("quiz-completed-bonus-seva")` (on answer).
+- On success it also fires a **`ct-<event>` sheet beacon** (e.g. `ct-quiz-completed-bonus-seva`)
+  so you can confirm from the sheet that the CT event actually went through.
+- This means the **client-side path works** — server-side push is now only a backup, not required.
+
 ## Files
 | File | What it is |
 |---|---|
-| `bonus-quiz-video.html` | The **18-Jun-2026 build that produced 56 real completers**. Uses `{{ Profile.cspId }}`, hashed `uid`, and client-side `window.CleverTap.pushEvent`. |
+| `bonus-quiz-video.html` | **CONFIRMED-WORKING build (22-Jun)** — retry-with-back-off `pushEvent`, fires `ct-<event>` beacon on success. This is the canonical version. |
 | `bonus-quiz-video-serverside.html` | Same UI, but events are raised **server-side** from the backend. Sends `uid` (hashed) + `id` (raw `{{Identity}}`). No client `pushEvent`. Works for real users regardless of the JS bridge. |
 | `tracking-backend.gs` | Apps Script web app. Logs beacons to the `Events` sheet (cols: timestamp, flow, screen, date, hour, **uid**) and, for `flow=BONUS` with `&id=`, calls `ctPushEvent_` to raise CleverTap events. |
 | `bonus-seva-quiz.html` | Old publicly-hosted page (fires its own beacons on every load — crawler/visitor traffic pollutes the sheet). Consider removing. |
