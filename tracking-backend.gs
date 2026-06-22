@@ -72,16 +72,17 @@ function ctShownAllCampaigns_() {
 
 function getCtCounts_() {
   var cache = CacheService.getScriptCache();
-  var hit = cache.get('ctCounts_v4');   // bumped key: now includes 2nd campaign
+  var hit = cache.get('ctCounts_v5');   // bumped key: now includes 2nd-question completers
   if (hit) return JSON.parse(hit);
   var data = {
-    shown:      ctShownAllCampaigns_(),
-    completers: ctUnique_('quiz-completed-bonus-seva'),
-    viewers:    ctUnique_('bonus-video-played'),
-    campaigns:  CT_SHOWN_CAMPAIGNS,
-    updated:    new Date().toISOString()
+    shown:       ctShownAllCampaigns_(),
+    completers:  ctUnique_('quiz-completed-bonus-seva'),
+    completers2: ctUnique_('quiz-completed-bonus-seva-second-question'),
+    viewers:     ctUnique_('bonus-video-played'),
+    campaigns:   CT_SHOWN_CAMPAIGNS,
+    updated:     new Date().toISOString()
   };
-  cache.put('ctCounts_v4', JSON.stringify(data), 3600);
+  cache.put('ctCounts_v5', JSON.stringify(data), 3600);
   return data;
 }
 
