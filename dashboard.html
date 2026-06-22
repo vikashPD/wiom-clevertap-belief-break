@@ -218,7 +218,8 @@ function renderDashboard(data) {
     '</div></div>';
   var ct = data.ct;
   if (ct) {
-    var ctShown   = ct.shown || 0;                    // inApp_Shown, campaign 1781662006
+    var ctShown   = ct.shown || 0;                    // inApp_Shown, campaigns 1781662006 + 1781951938
+    var ctCampaigns = (ct.campaigns && ct.campaigns.length) ? ct.campaigns.join(' + ') : '1781662006 + 1781951938';
     var ctConv = (ctShown > 0) ? Math.round((ct.completers/ctShown)*100) : null;
     bonusHtml +=
       '<div class="card">'+
@@ -229,7 +230,7 @@ function renderDashboard(data) {
       (ctConv!=null ? rw('Conversion Rate',ctConv+'%',ctConv>=25?'green':'red') : '')+
       '<div class="bar-wrap"><div class="bar-fill" style="width:'+(ctConv||0)+'%"></div></div>'+
       '<div style="font-size:11px;color:#A7A1B2;margin-top:8px">'+
-      'Shown = inApp_Shown (campaign 1781662006). Conversion = Completers ÷ Shown.'+
+      'Shown = inApp_Shown (campaigns '+ctCampaigns+'). Conversion = Completers ÷ Shown.'+
       (ct.updated ? '<br>Synced: '+toIST(ct.updated)+' IST' : '')+
       '</div>'+
       '</div></div>';

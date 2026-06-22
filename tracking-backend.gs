@@ -28,6 +28,63 @@ var CT_ACCOUNT_ID = 'YOUR_CT_ACCOUNT_ID';   // CleverTap → Settings → Projec
 var CT_PASSCODE   = 'YOUR_CT_PASSCODE';      // server Passcode (keep secret; do NOT commit real value to a public repo)
 var CT_REGION     = 'eu1';
 
+// Campaigns whose inApp_Shown counts roll up into the dashboard "Shown" number.
+// Add/remove campaign ids here — each is queried separately and summed.
+var CT_SHOWN_CAMPAIGNS = ['1781662006', '1781951938'];
+
+// Unique users who did `eventName` (optionally filtered by an event property).
+// CleverTap counts API is async: POST returns req_id, then poll until success.
+function ctUnique_(eventName, propName, propVal) {
+  try {
+    var u = 'https://' + CT_REGION + '.api.clevertap.com/1/counts/profiles.json';
+    var h = { 'X-CleverTap-Account-Id': CT_ACCOUNT_ID, 'X-CleverTap-Passcode': CT_PASSCODE };
+    var to   = parseInt(Utilities.formatDate(new Date(), 'Asia/Kolkata', 'yyyyMMdd'), 10);
+    var from = parseInt(Utilities.formatDate(new Date(Date.now() - 60*864e5), 'Asia/Kolkata', 'yyyyMMdd'), 10);
+    var body = { event_name: eventName, from: from, to: to };
+    if (propName && propVal) body.event_properties = [{ name: propName, operator: 'contains', value: propVal }];
+    var a = UrlFetchApp.fetch(u, { method:'post', contentType:'application/json', headers:h,
+      payload: JSON.stringify(body), muteHttpExceptions:true });
+    var j = JSON.parse(a.getContentText());
+    if (j.status === 'success' && j.count != null) return j.count;
+    var rid = j.req_id;
+    if (!rid) return 0;
+    for (var i = 0; i < 12; i++) {
+      Utilities.sleep(2000);
+      var b = UrlFetchApp.fetch(u + '?req_id=' + rid, { method:'post', contentType:'application/json', headers:h,
+        payload: JSON.stringify({}), muteHttpExceptions:true });
+      var pj = JSON.parse(b.getContentText());
+      if (pj.status === 'success' && pj.count != null) return pj.count;
+    }
+    return 0;
+  } catch (e) { return 0; }
+}
+
+// Sum unique inApp_Shown across all tracked campaigns. NOTE: this is a SUM of per-campaign
+// uniques — a user who saw BOTH campaigns is counted once per campaign (slight over-count of
+// true cross-campaign uniques). Acceptable for the dashboard "Shown" headline.
+function ctShownAllCampaigns_() {
+  var total = 0;
+  for (var i = 0; i < CT_SHOWN_CAMPAIGNS.length; i++) {
+    total += ctUnique_('inApp_Shown', 'campaign_id', CT_SHOWN_CAMPAIGNS[i]);
+  }
+  return total;
+}
+
+function getCtCounts_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('ctCounts_v4');   // bumped key: now includes 2nd campaign
+  if (hit) return JSON.parse(hit);
+  var data = {
+    shown:      ctShownAllCampaigns_(),
+    completers: ctUnique_('quiz-completed-bonus-seva'),
+    viewers:    ctUnique_('bonus-video-played'),
+    campaigns:  CT_SHOWN_CAMPAIGNS,
+    updated:    new Date().toISOString()
+  };
+  cache.put('ctCounts_v4', JSON.stringify(data), 3600);
+  return data;
+}
+
 function ctPushEvent_(identity, evtName) {
   if (!identity) return;
   try {
@@ -136,6 +193,7 @@ function getSheet_() {
 function buildSummary_(fromDate, toDate) {
   var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   var out = { summary: {}, total: 0, updated: new Date().toISOString() };
+  out.ct = getCtCounts_();   // CleverTap unique-user counts (cached 1hr)
   var flows = ['A1','A2','A3','A4','A5','BONUS'];
 
   for (var i = 0; i < flows.length; i++) {
