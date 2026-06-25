@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<style>
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:sans-serif;font-size:15px;line-height:1.5;color:#161021;background:#FAF9FC;overflow:hidden}
+a{text-decoration:none}
+.screen{display:none;flex-direction:column;position:absolute;top:0;left:0;width:100%;height:100%;background:#FAF9FC}
+.t{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+.content{flex:1;display:flex;flex-direction:column;padding:30px 20px calc(20px + env(safe-area-inset-bottom));overflow-y:auto}
+.ic{width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 6px 18px rgba(217,0,141,.12)}
+.ic .material-icons{color:#D9008D;font-size:34px}
+.title{font-size:20px;line-height:1.4;font-weight:700;margin-bottom:16px;text-align:center}
+.body-list{list-style:none;padding:0;margin:0}
+.body-list li{position:relative;padding-left:20px;margin-bottom:12px;font-size:14px;line-height:1.7;color:#5C5570}
+.body-list li::before{content:"\2022";position:absolute;left:0;top:-2px;color:#D9008D;font-weight:700;font-size:20px}
+.body-list b{color:#161021}
+.chip{display:inline-block;background:#D9008D;color:#fff;font-weight:700;font-size:13px;padding:3px 10px;border-radius:12px;margin:2px 2px 0}
+.spacer{flex:1;min-height:18px}
+.cta{display:flex;align-items:center;justify-content:center;color:#D9008D;font-size:15px;font-weight:700;line-height:1.4;width:100%;min-height:48px;margin-top:12px;text-align:center;cursor:pointer}
+.cta:active{color:#B3006F}
+</style>
+</head>
+<body>
+<div class="screen" id="inform">
+<div class="t" style="background-image:url('https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec?flow=WITHDRAW&screen=inform')"></div>
+<div class="content">
+<div class="ic"><span class="material-icons">account_balance_wallet</span></div>
+<div class="title">Withdrawal कैसे काम करता है?</div>
+<ul class="body-list">
+<li>हर withdrawal से पहले Wiom आपका <b>TDS</b> calculate करता है, ताकि आपके bank में सही amount पहुँचे।</li>
+<li>इसलिए withdrawal हफ्ते में <b>3 दिन</b> होता है: <span class="chip">Wednesday</span><span class="chip">Friday</span><span class="chip">Sunday</span></li>
+<li>आपको हर बार <b>net amount</b> मिलता है — TDS already कट कर। ITR में claim कर सकते हैं।</li>
+<li><b>Form 16A</b> हर quarter मिलेगा।</li>
+</ul>
+<div class="spacer"></div>
+<div class="cta" onclick="qc()">समझ गया</div>
+</div>
+</div>
+<script>
+(function(){
+  var ALLOWED_DAYS = ['Wednesday','Friday','Sunday'];   // IST — shows only on these days
+  var BURL = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
+  var qcDone=false, p={};
+  function beacon(s){ try{ new Image().src = BURL + '?flow=WITHDRAW&screen=' + s + '&t=' + (+new Date()); }catch(e){} }
+  function dismiss(a){
+    try{
+      if(window.CleverTap && window.CleverTap.dismissInAppNotification){ window.CleverTap.dismissInAppNotification(); return; }
+      if(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.clevertap){ window.webkit.messageHandlers.clevertap.postMessage({action:'dismissInAppNotification'}); return; }
+    }catch(e){}
+    a=a||0; if(a<6) setTimeout(function(){ dismiss(a+1); }, 250*(a+1));
+  }
+  // समझ गया -> fire the CleverTap event ONLY on this click, then close
+  window.qc = function(){
+    if(qcDone) return; qcDone=true;
+    beacon('completed');
+    var name='withdrawal-education-completed'; p[name]={s:false,n:0};
+    (function go(){ var st=p[name]; if(st.s) return;
+      try{ if(window.CleverTap && window.CleverTap.pushEvent){ window.CleverTap.pushEvent(name); st.s=true; beacon('ct-'+name); return; } }catch(e){}
+      st.n++; if(st.n<6) setTimeout(go, 250*st.n);
+    })();
+    setTimeout(function(){ dismiss(0); }, 350);
+  };
+  // ---- Day gate (IST) — shows only on Wed / Fri / Sun ----
+  var today = new Date().toLocaleDateString('en-US', { weekday:'long', timeZone:'Asia/Kolkata' });
+  if (ALLOWED_DAYS.indexOf(today) === -1){
+    beacon('skipped-' + today);
+    dismiss(0);
+    return;
+  }
+  document.getElementById('inform').style.display = 'flex';   // reveal only on allowed days
+  beacon('inform');
+})();
+</script>
+</body>
+</html>
