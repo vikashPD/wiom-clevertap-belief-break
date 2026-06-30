@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Kamai Kavach — Education</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:"Noto Sans Devanagari","Segoe UI",system-ui,-apple-system,sans-serif;background:#FAF9FC;color:#161021;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+.screen{display:none;position:fixed;inset:0;flex-direction:column;background:#fff}
+.screen.active{display:flex}
+.ct-hero{background:linear-gradient(155deg,#D9008D,#B0006F);color:#fff;padding:calc(30px + env(safe-area-inset-top)) 22px 26px;position:relative;text-align:center;flex:none}
+.ct-x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;color:#fff;opacity:.85;font-size:20px;line-height:1;padding:8px}
+.ct-emoji{font-size:48px;line-height:1}
+.ct-kick{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.9;margin-top:12px}
+.ct-title{font-size:22px;font-weight:700;line-height:1.25;margin-top:6px}
+.ct-content{padding:20px 22px calc(20px + env(safe-area-inset-bottom));flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.ct-body{font-size:14px;color:#665E75;line-height:1.6}
+.ct-list{margin:6px 0 0;padding:0;list-style:none}
+.ct-list li{display:flex;gap:9px;font-size:13px;color:#161021;margin-bottom:9px;align-items:flex-start}
+.ct-list li b{color:#D9008D}
+.ct-ctas{margin-top:auto;padding-top:14px}
+.w-cta{display:block;width:100%;text-align:center;background:#D9008D;color:#fff;font-size:15px;font-weight:700;padding:14px;border-radius:16px;border:none;margin-top:8px}
+.w-cta:active{background:#B0006F}
+.w-cta.info{background:#6D17CE}
+.w-cta.pos{background:#008043}
+.quiz-q{font-size:14px;color:#161021;line-height:1.5;margin:2px 0 12px;font-weight:600}
+.quiz-opt{display:block;width:100%;text-align:left;background:#fff;border:1px solid #D7D3E0;border-radius:12px;padding:13px 14px;margin-bottom:9px;font-size:13.5px;color:#161021;line-height:1.45}
+.quiz-opt:active{border-color:#D9008D}
+.quiz-opt.correct{border-color:#008043;background:#E1FAED;color:#0a5e32;font-weight:600}
+.quiz-opt.wrong{border-color:#D92130;background:#FFE5E7;color:#8a1620;font-weight:600}
+.quiz-opt .mk{float:right;font-weight:700;margin-left:6px}
+</style>
+</head>
+<body>
+
+<!-- 1. Announcement -->
+<div class="screen active" data-id="announcement">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🛡️</div><div class="ct-kick">कमाई कवच · सितंबर तक</div><div class="ct-title">हर महीने ₹10,000<br>तक की कमाई पक्की</div></div>
+  <div class="ct-content"><div class="ct-body">अच्छी क्वालिटी के साथ इंस्टॉल करते रहें — हर महीने आपकी कमाई का कवच, Wiom की ओर से।</div><div class="ct-ctas"><button class="w-cta" data-goto="optin">और जानें</button></div></div>
+</div>
+
+<!-- 2. Oath / mutual promise -->
+<div class="screen" data-id="optin">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🤝</div><div class="ct-kick">आपसी वादा · कमाई कवच</div><div class="ct-title">दोनों एक-दूसरे<br>से वादा करें</div></div>
+  <div class="ct-content"><div class="ct-body" style="text-align:center;margin-bottom:13px">दोनों तरफ से एक-एक वादा,<br>यही आपकी कमाई पक्की करता है।</div><ul class="ct-list"><li>📩 <span><b>Wiom का वादा:</b> हर हफ्ते आपको पक्की लीड भेजेंगे</span></li><li>🔧 <span><b>आपका वादा:</b> मिली लीड में से 60% इंस्टॉल पूरे करें</span></li><li>🛡️ <span><b>हमारी गारंटी:</b> कम लीड मिलें तो भी हर महीने ₹10,000 तक पक्के</span></li></ul><div class="ct-ctas"><button class="w-cta" data-goto="quiz_intro">मैं वादा करता हूँ</button></div></div>
+</div>
+
+<!-- 3. Quiz intro -->
+<div class="screen" data-id="quiz_intro">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">📝</div><div class="ct-kick">कमाई कवच · 4 छोटे सवाल</div><div class="ct-title">एक आसान क्विज़,<br>फिर तैयार</div></div>
+  <div class="ct-content"><div class="ct-body">कमाई कवच चालू करने के लिए बस 4 आसान सवालों के जवाब दीजिए — सभी सही होते ही आप शामिल हो जाएंगे।</div><div class="ct-ctas"><button class="w-cta" data-goto="q1">सवाल शुरू करें</button></div></div>
+</div>
+
+<!-- 4. Q1 -->
+<div class="screen" data-id="q1">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">❓</div><div class="ct-kick">कमाई कवच · सवाल 1/4</div><div class="ct-title">कमाई कवच क्या है?</div></div>
+  <div class="ct-content"><div class="quiz-q">इनमें से सही बात कौन-सी है?</div><button class="quiz-opt" data-goto="q1t"><b>A)</b> बिना काम किए हर महीने ₹10,000 पक्का मिलेगा।</button><button class="quiz-opt" data-goto="q2"><b>B)</b> हर इंस्टॉल के ₹300, और महीने का कम से कम ₹10,000 की गारंटी।</button><button class="quiz-opt" data-goto="q1t"><b>C)</b> सिर्फ़ इंस्टॉल के पैसे, कोई ₹10,000 गारंटी नहीं।</button><button class="quiz-opt" data-goto="q1t"><b>D)</b> हर इंस्टॉल के ₹300 और ₹10,000 गारंटी, इंस्टॉल रेट चाहे जो भी हो।</button></div>
+</div>
+<div class="screen" data-id="q1t">
+  <div class="ct-hero" style="background:linear-gradient(155deg,#7b3fd1,#5a17b0)"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">💡</div><div class="ct-kick">कमाई कवच · समझें</div><div class="ct-title">कमाई कवच समझें</div></div>
+  <div class="ct-content"><div class="ct-body" style="line-height:1.75">कमाई कवच में हर इंस्टॉल के आपको <b>₹300</b> मिलते हैं। अगर पूरे महीने की इंस्टॉल कमाई ₹10,000 से कम रह जाए, तो Wiom उसे <b>₹10,000 तक पूरा</b> कर देती है — इसके लिए आपकी इंस्टॉल रेट <b>60% या उससे ऊपर</b> होनी चाहिए।</div><div class="ct-ctas"><button class="w-cta info" data-goto="q1">दोबारा कोशिश करें</button></div></div>
+</div>
+
+<!-- 5. Q2 -->
+<div class="screen" data-id="q2">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">❓</div><div class="ct-kick">कमाई कवच · सवाल 2/4</div><div class="ct-title">अब हिसाब लगाइए</div></div>
+  <div class="ct-content"><div class="quiz-q">इस महीने आपको 10 कनेक्शन आते हैं और आप उनमें से 8 इंस्टॉल कर देते हैं। आपकी कुल कमाई कितनी होगी?</div><button class="quiz-opt" data-goto="q2t"><b>A)</b> ₹2,400</button><button class="quiz-opt" data-goto="q2t"><b>B)</b> ₹7,600</button><button class="quiz-opt" data-goto="q3"><b>C)</b> ₹10,000</button><button class="quiz-opt" data-goto="q2t"><b>D)</b> ₹2,600</button></div>
+</div>
+<div class="screen" data-id="q2t">
+  <div class="ct-hero" style="background:linear-gradient(155deg,#7b3fd1,#5a17b0)"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">💡</div><div class="ct-kick">कमाई कवच · समझें</div><div class="ct-title">ऐसे बनता है ₹10,000</div></div>
+  <div class="ct-content"><div class="ct-body" style="line-height:1.75">1️⃣ इंस्टॉल रेट = 8 ÷ 10 = <b>80%</b> — 60% से ऊपर, इसलिए गारंटी लागू।<br>2️⃣ इंस्टॉल कमाई = ₹300 × 8 = <b>₹2,400</b>।<br>3️⃣ ₹2,400, ₹10,000 से कम है — Wiom टॉप-अप देगा = ₹10,000 − ₹2,400 = <b>₹7,600</b>।<br>4️⃣ कुल = ₹2,400 + ₹7,600 = <b>₹10,000</b>।</div><div class="ct-ctas"><button class="w-cta info" data-goto="q2">दोबारा कोशिश करें</button></div></div>
+</div>
+
+<!-- 6. Q3 -->
+<div class="screen" data-id="q3">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">❓</div><div class="ct-kick">कमाई कवच · सवाल 3/4</div><div class="ct-title">एक और हिसाब</div></div>
+  <div class="ct-content"><div class="quiz-q">इस महीने 10 कनेक्शन आते हैं, लेकिन आप सिर्फ़ 5 इंस्टॉल कर पाते हैं। आपकी कमाई कितनी होगी?</div><button class="quiz-opt" data-goto="q3t"><b>A)</b> ₹10,000 (गारंटी तो मिल ही जाएगा)</button><button class="quiz-opt" data-goto="q4"><b>B)</b> ₹1,500 — सिर्फ़ इंस्टॉल की कमाई, गारंटी नहीं</button><button class="quiz-opt" data-goto="q3t"><b>C)</b> ₹6,000</button><button class="quiz-opt" data-goto="q3t"><b>D)</b> ₹3,000</button></div>
+</div>
+<div class="screen" data-id="q3t">
+  <div class="ct-hero" style="background:linear-gradient(155deg,#7b3fd1,#5a17b0)"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">💡</div><div class="ct-kick">कमाई कवच · समझें</div><div class="ct-title">60% से नीचे — गारंटी नहीं</div></div>
+  <div class="ct-content"><div class="ct-body" style="line-height:1.75">1️⃣ इंस्टॉल रेट = 5 ÷ 10 = <b>50%</b> — यह 60% से नीचे है।<br>2️⃣ ₹10,000 गारंटी सिर्फ़ तब मिलती है जब रेट <b>60% या ज़्यादा</b> हो। 60% से नीचे कोई टॉप-अप नहीं — यह हार्ड लाइन है।<br>3️⃣ इसलिए सिर्फ़ इंस्टॉल कमाई = ₹300 × 5 = <b>₹1,500</b>।<br>💡 सिर्फ़ 1 और इंस्टॉल (6 ÷ 10 = 60%) पूरा ₹10,000 अनलॉक कर देता।</div><div class="ct-ctas"><button class="w-cta info" data-goto="q3">दोबारा कोशिश करें</button></div></div>
+</div>
+
+<!-- 7. Q4 -->
+<div class="screen" data-id="q4">
+  <div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">❓</div><div class="ct-kick">कमाई कवच · सवाल 4/4</div><div class="ct-title">आख़िरी सवाल</div></div>
+  <div class="ct-content"><div class="quiz-q">इस महीने 50 कनेक्शन आते हैं और आप 40 इंस्टॉल कर देते हैं। आपकी कमाई कितनी होगी?</div><button class="quiz-opt" data-goto="q4t"><b>A)</b> ₹10,000 (गारंटी तक ही मिलेगा)</button><button class="quiz-opt" data-goto="q4t"><b>B)</b> ₹2,000</button><button class="quiz-opt" data-goto="q4t"><b>C)</b> ₹11,000</button><button class="quiz-opt" data-goto="eligible"><b>D)</b> ₹12,000 — पूरी इंस्टॉल कमाई आपकी</button></div>
+</div>
+<div class="screen" data-id="q4t">
+  <div class="ct-hero" style="background:linear-gradient(155deg,#7b3fd1,#5a17b0)"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">💡</div><div class="ct-kick">कमाई कवच · समझें</div><div class="ct-title">गारंटी से ऊपर — पूरा आपका</div></div>
+  <div class="ct-content"><div class="ct-body" style="line-height:1.75">1️⃣ इंस्टॉल रेट = 40 ÷ 50 = <b>80%</b> — 60% से ऊपर, गेट पार।<br>2️⃣ इंस्टॉल कमाई = ₹300 × 40 = <b>₹12,000</b>।<br>3️⃣ ₹12,000 तो ₹10,000 गारंटी से पहले ही ज़्यादा है — कोई टॉप-अप नहीं, पूरा <b>₹12,000 आपका</b>।</div><div class="ct-ctas"><button class="w-cta info" data-goto="q4">दोबारा कोशिश करें</button></div></div>
+</div>
+
+<!-- 8. Success / activation -->
+<div class="screen" data-id="eligible">
+  <div class="ct-hero" style="background:linear-gradient(155deg,#0a9d56,#007a40)"><span class="ct-x" data-act="complete">✕</span><div class="ct-emoji">🎉</div><div class="ct-kick">कमाई कवच · चालू</div><div class="ct-title">बधाई हो,<br>कमाई कवच चालू!</div></div>
+  <div class="ct-content"><div class="ct-body">वादा पक्का — हर महीने मिली लीड का 60% लगाएं, और महीने के अंत में ₹10,000 तक आपके।</div><div class="ct-ctas"><button class="w-cta pos" data-act="complete">ठीक है</button></div></div>
+</div>
+
+<script>
+(function(){
+  // Sheet beacon endpoint (same Apps Script as the other BBEs)
+  var BURL = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
+  var EVT  = 'kamai-kavach-education-completed';   // fires ONLY when education is fully completed
+  var screens = document.querySelectorAll('.screen');
+  var p = {}, done = false;
+
+  function beacon(s){ try{ new Image().src = BURL + '?flow=KAVACH&screen=' + s + '&t=' + (+new Date()); }catch(e){} }
+
+  function show(id){
+    for(var i=0;i<screens.length;i++){
+      var on = screens[i].getAttribute('data-id') === id;
+      screens[i].classList.toggle('active', on);
+      if(on){ var c = screens[i].querySelector('.ct-content'); if(c) c.scrollTop = 0; beacon(id); }
+    }
+  }
+
+  function dismiss(a){
+    try{
+      if(window.CleverTap && window.CleverTap.dismissInAppNotification){ window.CleverTap.dismissInAppNotification(); return; }
+      if(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.clevertap){ window.webkit.messageHandlers.clevertap.postMessage({action:'dismissInAppNotification'}); return; }
+    }catch(e){}
+    a = a || 0; if(a < 6) setTimeout(function(){ dismiss(a+1); }, 250*(a+1));
+  }
+
+  // Retry pushEvent until the late-attaching CleverTap bridge exists (up to 6 tries)
+  function fire(name){
+    if(p[name]) return; p[name] = {s:false, n:0};
+    (function go(){ var st = p[name]; if(st.s) return;
+      try{ if(window.CleverTap && window.CleverTap.pushEvent){ window.CleverTap.pushEvent(name); st.s = true; beacon('ct-'+name); return; } }catch(e){}
+      st.n++; if(st.n < 6) setTimeout(go, 250*st.n);
+    })();
+  }
+
+  // Education fully completed -> fire CT event, then close
+  function complete(){
+    if(done) return; done = true;
+    beacon('completed');
+    fire(EVT);
+    setTimeout(function(){ dismiss(0); }, 350);
+  }
+
+  function mark(b,sym,cls){ b.classList.add(cls); if(!b.querySelector('.mk')){ var s=document.createElement('span'); s.className='mk'; s.textContent=sym; b.appendChild(s); } }
+  function clearMarks(scr){ var os=scr.querySelectorAll('.quiz-opt'); for(var i=0;i<os.length;i++){ os[i].classList.remove('correct','wrong'); os[i].style.pointerEvents=''; var m=os[i].querySelector('.mk'); if(m) m.remove(); } scr.removeAttribute('data-answered'); }
+
+  document.body.addEventListener('click', function(e){
+    // quiz answer
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var scr = opt.closest('.screen');
+      if(scr.getAttribute('data-answered')) return;     // ignore further taps
+      scr.setAttribute('data-answered','1');
+      var goto = opt.getAttribute('data-goto');
+      var teachId = scr.getAttribute('data-id') + 't';
+      var isCorrect = (goto !== teachId);
+      var os = scr.querySelectorAll('.quiz-opt');
+      for(var i=0;i<os.length;i++) os[i].style.pointerEvents = 'none';
+      if(isCorrect){ mark(opt,'✓','correct'); }
+      else{
+        mark(opt,'✕','wrong');
+        for(var j=0;j<os.length;j++){ if(os[j].getAttribute('data-goto') !== teachId){ mark(os[j],'✓','correct'); break; } }
+      }
+      setTimeout(function(){ clearMarks(scr); show(goto); }, isCorrect ? 900 : 1300);
+      return;
+    }
+    // action buttons (dismiss / complete)
+    var act = e.target.closest('[data-act]');
+    if(act){
+      var a = act.getAttribute('data-act');
+      if(a === 'dismiss'){ dismiss(0); return; }
+      if(a === 'complete'){ complete(); return; }
+    }
+    // plain navigation
+    var t = e.target.closest('[data-goto]');
+    if(t){ e.preventDefault(); show(t.getAttribute('data-goto')); }
+  });
+
+  show('announcement');   // impression beacon
+})();
+</script>
+</body>
+</html>
