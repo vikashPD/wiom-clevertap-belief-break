@@ -35,6 +35,8 @@ button{font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
+<!-- per-user audit URL (CleverTap profile macro). Leave empty -> in-app mock screen is used. -->
+<span id="au" style="display:none">{{Profile.audit_url}}</span>
 
 <!-- 1. Announcement -->
 <div class="screen active" data-id="announcement"><div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🛡️</div><div class="ct-kick">कमाई कवच · सितंबर तक</div><div class="ct-title">हर महीने ₹10,000<br>तक की कमाई पक्की</div></div><div class="ct-content"><div class="ct-body">अच्छी क्वालिटी के साथ इंस्टॉल करते रहें — हर महीने आपकी कमाई का कवच, Wiom की ओर से।</div><div class="ct-ctas"><button class="w-cta" data-goto="optin">और जानें</button></div></div></div>
@@ -43,9 +45,9 @@ button{font-family:inherit;cursor:pointer}
 <div class="screen" data-id="optin"><div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🤝</div><div class="ct-kick">आपसी वादा · कमाई कवच</div><div class="ct-title">दोनों एक-दूसरे<br>से वादा करें</div></div><div class="ct-content"><div class="ct-body" style="text-align:center;margin-bottom:13px">दोनों तरफ से एक-एक वादा,<br>यही आपकी कमाई पक्की करता है।</div><ul class="ct-list"><li>📩 <span><b>Wiom का वादा:</b> हर हफ्ते आपको पक्की लीड भेजेंगे</span></li><li>🔧 <span><b>आपका वादा:</b> मिली लीड में से 60% इंस्टॉल पूरे करें</span></li><li>🛡️ <span><b>हमारी गारंटी:</b> कम लीड मिलें तो भी हर महीने ₹10,000 तक पक्के</span></li></ul><div class="ct-ctas"><button class="w-cta" data-goto="audit_pending">मैं वादा करता हूँ</button></div></div></div>
 
 <!-- 3. Audit pending -->
-<div class="screen" data-id="audit_pending"><div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🛡️</div><div class="ct-kick">कमाई कवच · आख़िरी कदम</div><div class="ct-title">बस एक छोटा<br>कदम बाकी है</div></div><div class="ct-content"><div class="ct-body">₹10,000 तक की कमाई कवच चालू करने के लिए पहले नेटबॉक्स माफ़ी योजना का छोटा-सा ऑडिट पूरा कर लें।</div><div class="ct-ctas"><button class="w-cta" data-goto="audit_browser">ऑडिट पूरा करें</button></div></div></div>
+<div class="screen" data-id="audit_pending"><div class="ct-hero"><span class="ct-x" data-act="dismiss">✕</span><div class="ct-emoji">🛡️</div><div class="ct-kick">कमाई कवच · आख़िरी कदम</div><div class="ct-title">बस एक छोटा<br>कदम बाकी है</div></div><div class="ct-content"><div class="ct-body">₹10,000 तक की कमाई कवच चालू करने के लिए पहले नेटबॉक्स माफ़ी योजना का छोटा-सा ऑडिट पूरा कर लें।</div><div class="ct-ctas"><button class="w-cta" data-act="audit">ऑडिट पूरा करें</button></div></div></div>
 
-<!-- 4. Audit "browser" (audit page) -->
+<!-- 4. Audit "browser" (in-app mock — fallback when no audit_url profile value) -->
 <div class="screen" data-id="audit_browser"><div style="background:#EFEDF3;color:#5C5570;font-size:12px;padding:calc(12px + env(safe-area-inset-top)) 14px 12px;display:flex;align-items:center;gap:8px;flex:none"><span>‹ ›</span><span style="flex:1;background:#fff;border-radius:8px;padding:7px 10px;color:#161021;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🔒 wiom.in/netbox-maafi-audit</span><span>⋮</span></div><div class="ct-content" style="padding-top:18px"><div style="font-size:22px;font-weight:700;color:#D9008D">Wiom</div><div style="font-size:18px;font-weight:700;margin-top:8px">नेटबॉक्स माफ़ी योजना — ऑडिट</div><div class="ct-body" style="margin-top:8px">अपने नेटबॉक्स की जानकारी जाँचें और ऑडिट पूरा करें। यह एक बार का छोटा कदम है।</div><div style="margin-top:16px"><div style="display:flex;justify-content:space-between;border:1px solid #D7D3E0;border-radius:12px;padding:14px;margin-bottom:10px;font-size:14px">नेटबॉक्स नंबर जाँचा <b style="color:#008043">✓</b></div><div style="display:flex;justify-content:space-between;border:1px solid #D7D3E0;border-radius:12px;padding:14px;font-size:14px">फ़ोटो अपलोड <b style="color:#008043">✓</b></div></div><div class="ct-ctas"><button class="w-cta" data-goto="audit_processing">ऑडिट जमा करें</button><span style="display:block;text-align:center;color:#665E75;font-size:13px;margin-top:12px" data-goto="audit_pending">‹ ऐप पर वापस जाएँ</span></div></div></div>
 
 <!-- 5. Audit processing -->
@@ -99,6 +101,20 @@ button{font-family:inherit;cursor:pointer}
     a = a || 0; if(a < 6) setTimeout(function(){ dismiss(a+1); }, 250*(a+1));
   }
 
+  // Open an external URL through the CleverTap bridge, with browser/location fallbacks
+  function openUrl(url){
+    try{ if(window.CleverTap && window.CleverTap.openUrlInBrowser){ window.CleverTap.openUrlInBrowser(url); return; } }catch(e){}
+    try{ var w = window.open(url, '_blank'); if(w) return; }catch(e){}
+    try{ window.location.href = url; }catch(e){}
+  }
+
+  // Read the per-user audit URL from the profile macro span. Returns '' if unresolved/empty.
+  function auditUrl(){
+    var el = document.getElementById('au');
+    var u = el ? (el.textContent || '').trim() : '';
+    return /^https?:\/\//i.test(u) ? u : '';   // must be a real http(s) URL, not the literal macro
+  }
+
   // Retry pushEvent until the late-attaching CleverTap bridge exists (up to 6 tries)
   function fire(name){
     if(p[name]) return; p[name] = {s:false, n:0};
@@ -139,12 +155,19 @@ button{font-family:inherit;cursor:pointer}
       setTimeout(function(){ clearMarks(scr); show(goto); }, isCorrect ? 900 : 1300);
       return;
     }
-    // action buttons (dismiss / complete)
+    // action buttons
     var act = e.target.closest('[data-act]');
     if(act){
       var a = act.getAttribute('data-act');
       if(a === 'dismiss'){ dismiss(0); return; }
       if(a === 'complete'){ complete(); return; }
+      if(a === 'audit'){
+        var url = auditUrl();
+        beacon(url ? 'audit_open' : 'audit_mock');
+        if(url){ openUrl(url); show('audit_processing'); }   // real audit page -> come back -> फिर से जाँचें
+        else   { show('audit_browser'); }                    // no URL -> in-app mock (never blank)
+        return;
+      }
     }
     // plain navigation
     var t = e.target.closest('[data-goto]');
