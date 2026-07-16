@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wiom Offer Education – Analytics Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FAF9FC;color:#161021;min-height:100vh}
+.header{background:#D9008D;color:#fff;padding:24px 20px}
+.header h1{font-size:22px;font-weight:700}
+.header p{font-size:13px;opacity:.85;margin-top:4px}
+.config{background:#fff;border-bottom:1px solid #E8E4F0;padding:14px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.config input{flex:1;min-width:220px;padding:10px 14px;border:1.5px solid #E8E4F0;border-radius:8px;font-size:14px;outline:none}
+.config input:focus{border-color:#D9008D}
+.config button{background:#D9008D;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer}
+.config button:hover{background:#B3006F}
+.refresh label{cursor:pointer;font-size:12px;color:#5C5570}
+.banner{padding:10px 20px;font-size:13px;font-weight:600;text-align:center;background:#D4EDDA;color:#155724}
+.banner.warn{background:#FFF6E9;color:#8A5200}
+.banner.err{background:#FDE7E9;color:#A3111C}
+#status{font-size:12px;color:#5C5570;padding:6px 20px}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px}
+@media(max-width:640px){.totals{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E4F0;text-align:center}
+.stat .val{font-size:28px;font-weight:700;color:#D9008D}
+.stat .lbl{font-size:12px;color:#5C5570;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:0 20px 20px}
+.card{background:#fff;border-radius:12px;border:1px solid #E8E4F0;overflow:hidden}
+.card-head{background:#FFE5F6;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card-head h3{font-size:15px;font-weight:700;color:#D9008D}
+.card-head .tag{font-size:10px;background:#D9008D;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.card-body{padding:16px}
+.metric{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F1F7}
+.metric:last-child{border-bottom:none}
+.metric .k{font-size:13px;color:#5C5570}
+.metric .v{font-size:15px;font-weight:600}
+.metric .v.green{color:#008043}
+.metric .v.red{color:#D92130}
+.bar-wrap{height:6px;background:#F3F1F7;border-radius:3px;margin-top:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:#008043;transition:width .5s}
+.step{margin-bottom:14px}
+.step:last-child{margin-bottom:0}
+.step-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:5px}
+.step-top .n{font-weight:600;color:#161021}
+.step-top .c{font-weight:700;color:#D9008D}
+.step-bar{height:24px;background:#F3F1F7;border-radius:6px;overflow:hidden}
+.step-bar div{height:100%;background:linear-gradient(90deg,#E11C97,#C70680);border-radius:6px;transition:width .6s}
+.step-sub{font-size:11px;color:#A7A1B2;margin-top:3px}
+.opt{margin-bottom:12px}
+.opt-t{font-size:12.5px;color:#352E45;line-height:1.45;margin-bottom:5px}
+.opt-bar{height:18px;background:#F3F1F7;border-radius:5px;overflow:hidden}
+.opt-bar div{height:100%;background:#8B5CF6;border-radius:5px;transition:width .6s}
+.note{background:#FBF9FE;border:1px solid #F0ECF5;border-radius:10px;padding:12px;font-size:12px;color:#5C5570;line-height:1.6;margin:0 20px 20px}
+.note b{color:#161021}
+.footer{text-align:center;padding:20px;font-size:12px;color:#A7A1B2}
+.hint{font-size:11px;color:#A7A1B2;margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Wiom Offer Education — Analytics</h1>
+  <p>हर कस्टमर को मिलता है अलग अलग ऑफर · in-app funnel (CleverTap)</p>
+</div>
+
+<div class="banner" id="banner">Connecting…</div>
+
+<div class="config">
+  <input type="text" id="endpoint" placeholder="Google Apps Script /exec URL"/>
+  <button onclick="loadData(false)">Reload</button>
+  <button onclick="loadData(true)" style="background:#5C5570">Force refresh</button>
+  <div class="refresh"><label><input type="checkbox" id="autoRefresh" onchange="toggleRefresh()"/> Auto 60s</label></div>
+</div>
+<div id="status"></div>
+
+<div class="totals" id="totals"></div>
+<div class="grid" id="grid"></div>
+
+<div class="note">
+  <b>How to read this.</b> All numbers are <b>unique users</b> from the CleverTap counts API
+  (<code>count</code>, not total taps), over a rolling <b>60-day</b> window.
+  <b>Shown</b> = <code>inApp_Shown</code> filtered by campaign id — if multiple campaign ids are tracked
+  it is a <b>sum of per-campaign uniques</b>, so someone who saw two campaigns counts twice.<br>
+  <b>The quiz has no right/wrong.</b> All three options carry the correct message, so every answer
+  reports <code>correct: yes</code>. The option split below is a <b>preference</b> read (which wording
+  CSPs pick), not a comprehension score.<br>
+  Data is cached for <b>1 hour</b> server-side — use <b>Force refresh</b> after a ramp.
+</div>
+
+<div class="footer">Wiom Offer Education Tracker · data via CleverTap counts API (eu1)</div>
+
+<script>
+// Paste your deployed offer-tracking-backend.gs /exec URL here to make it the default.
+var DEFAULT_ENDPOINT = '';
+var refreshTimer = null;
+
+var OPTS = [
+  '"आपका सही अमाउंट आपके व्योम ऐप में दिखेगा, वही फाइनल अमाउंट होगा।"',
+  '"जो अमाउंट ऐप में दिख रहा है, बस वही देना होगा।"',
+  '"अमाउंट मैं नहीं तय करता — आपका ऐप दिखाता है।"'
+];
+
+window.onload = function() {
+  document.getElementById('endpoint').value =
+    localStorage.getItem('wiom_offer_url') || DEFAULT_ENDPOINT;
+  render(null);
+  if (document.getElementById('endpoint').value) loadData(false);
+  else setBanner('warn', 'Paste the Apps Script /exec URL above, then hit Reload');
+};
+
+function setBanner(cls, msg) {
+  var b = document.getElementById('banner');
+  b.className = 'banner' + (cls ? ' ' + cls : '');
+  b.textContent = msg;
+}
+
+function loadData(force) {
+  var url = document.getElementById('endpoint').value.trim();
+  if (!url) { setBanner('warn', 'Paste the Apps Script /exec URL first'); return; }
+  localStorage.setItem('wiom_offer_url', url);
+  setBanner('warn', force ? 'Force refreshing from CleverTap (can take ~40s)…' : 'Loading…');
+  document.getElementById('status').textContent = 'Fetching…';
+
+  // JSONP — Apps Script doesn't send CORS headers for cross-origin fetch.
+  var cb = '_ocb' + Date.now();
+  var s = document.createElement('script');
+  var done = false;
+
+  window[cb] = function(data) {
+    done = true;
+    setBanner('', 'Connected to live CleverTap data');
+    render(data && data.ct ? data.ct : null);
+    delete window[cb];
+    if (s.parentNode) s.parentNode.removeChild(s);
+  };
+  s.onerror = function() {
+    if (done) return;
+    delete window[cb];
+    if (s.parentNode) s.parentNode.removeChild(s);
+    setBanner('err', 'Could not reach the Apps Script. Check the URL and that access = Anyone.');
+    document.getElementById('status').textContent = '';
+  };
+  s.src = url + '?action=data&callback=' + cb + (force ? '&nocache=1' : '');
+  document.body.appendChild(s);
+}
+
+function render(ct) {
+  if (!ct) {
+    document.getElementById('totals').innerHTML =
+      st('—','Shown') + st('—','Education OK') + st('—','Quiz Answered') + st('—','Quiz Closed');
+    document.getElementById('grid').innerHTML = '';
+    return;
+  }
+
+  var shown = ct.shown || 0, edu = ct.eduOk || 0,
+      ans = ct.quizAnswered || 0, clo = ct.quizClosed || 0;
+
+  var pct = function(a, b) { return b > 0 ? Math.round(a / b * 100) : 0; };
+  var eduRate  = pct(edu, shown);   // saw it -> tapped ठीक है
+  var quizRate = pct(ans, edu);     // tapped ठीक है -> answered quiz
+  var endRate  = pct(clo, ans);     // answered -> closed properly
+  var thru     = pct(clo, shown);   // full funnel
+
+  document.getElementById('totals').innerHTML =
+    st(shown, 'Shown (unique)') + st(edu, 'Education OK') +
+    st(ans, 'Quiz Answered') + st(clo, 'Quiz Closed');
+
+  // ---- funnel card ----
+  var base = shown > 0 ? shown : (edu > 0 ? edu : 1);
+  var html = '<div class="card">' +
+    '<div class="card-head"><h3>Funnel</h3><span class="tag">UNIQUE USERS</span></div>' +
+    '<div class="card-body">' +
+    step('1 · Shown (inApp_Shown)', shown, base, shown === 0 ? 'no campaign id set yet' : '') +
+    step('2 · Tapped ठीक है', edu, base, eduRate + '% of shown') +
+    step('3 · Answered quiz', ans, base, quizRate + '% of those who tapped ठीक है') +
+    step('4 · Tapped ठीक है, समझ गया', clo, base, endRate + '% of those who answered') +
+    '</div></div>';
+
+  // ---- rates card ----
+  html += '<div class="card">' +
+    '<div class="card-head"><h3>Conversion</h3><span class="tag">RATES</span></div>' +
+    '<div class="card-body">' +
+    rw('Shown → Education OK', shown ? eduRate + '%' : 'n/a', eduRate >= 50 ? 'green' : 'red') +
+    rw('Education OK → Quiz Answered', edu ? quizRate + '%' : 'n/a', quizRate >= 50 ? 'green' : 'red') +
+    rw('Quiz Answered → Closed', ans ? endRate + '%' : 'n/a', endRate >= 50 ? 'green' : 'red') +
+    rw('Full funnel (Shown → Closed)', shown ? thru + '%' : 'n/a', thru >= 25 ? 'green' : 'red') +
+    '<div class="bar-wrap"><div class="bar-fill" style="width:' + thru + '%"></div></div>' +
+    '<div class="hint">Drop-off between step 2 and 3 is the one to watch — that is CSPs who read the education but never engaged with the quiz.</div>' +
+    '</div></div>';
+
+  // ---- option preference card ----
+  var o = [ct.opt1 || 0, ct.opt2 || 0, ct.opt3 || 0];
+  var oSum = o[0] + o[1] + o[2];
+  var oMax = Math.max(o[0], o[1], o[2], 1);
+  var oh = '';
+  for (var i = 0; i < 3; i++) {
+    var share = oSum > 0 ? Math.round(o[i] / oSum * 100) : 0;
+    oh += '<div class="opt">' +
+      '<div class="opt-t"><b>' + o[i] + '</b> · ' + share + '% — ' + esc(OPTS[i]) + '</div>' +
+      '<div class="opt-bar"><div style="width:' + Math.round(o[i] / oMax * 100) + '%"></div></div>' +
+      '</div>';
+  }
+  html += '<div class="card">' +
+    '<div class="card-head"><h3>Which wording they picked</h3><span class="tag">PREFERENCE</span></div>' +
+    '<div class="card-body">' + oh +
+    '<div class="hint">All three options are correct — this is not a score. ' +
+    (oSum !== ans && ans > 0 ? 'Note: option totals (' + oSum + ') ≠ quiz answered (' + ans + '); a user answers once, so a gap here usually means the <code>option</code> property filter needs adjusting in the backend.' : 'Every answer reports correct: yes.') +
+    '</div></div></div>';
+
+  document.getElementById('grid').innerHTML = html;
+
+  var camps = (ct.campaigns || []).filter(function(c) { return c && c !== 'PASTE_CAMPAIGN_ID_HERE'; });
+  document.getElementById('status').textContent =
+    'Synced: ' + toIST(ct.updated) + ' IST · lookback ' + (ct.lookbackDays || 60) + 'd · ' +
+    (camps.length ? 'campaigns ' + camps.join(' + ') : 'no campaign id configured');
+  if (!camps.length) setBanner('warn', 'Shown = 0 until you add the campaign id to CT_SHOWN_CAMPAIGNS in the backend');
+}
+
+function step(name, val, base, sub) {
+  var w = base > 0 ? Math.round(val / base * 100) : 0;
+  return '<div class="step">' +
+    '<div class="step-top"><span class="n">' + name + '</span><span class="c">' + val + '</span></div>' +
+    '<div class="step-bar"><div style="width:' + w + '%"></div></div>' +
+    (sub ? '<div class="step-sub">' + sub + '</div>' : '') + '</div>';
+}
+function st(v, l) { return '<div class="stat"><div class="val">' + v + '</div><div class="lbl">' + l + '</div></div>'; }
+function rw(k, v, c) { return '<div class="metric"><span class="k">' + k + '</span><span class="v' + (c ? ' ' + c : '') + '">' + v + '</span></div>'; }
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function toIST(iso) {
+  try {
+    var d = new Date(iso);
+    var ist = new Date(d.getTime() + (5 * 60 + 30) * 60000);
+    var p = function(n) { return (n < 10 ? '0' : '') + n; };
+    return ist.getUTCFullYear() + '-' + p(ist.getUTCMonth() + 1) + '-' + p(ist.getUTCDate()) +
+           ' ' + p(ist.getUTCHours()) + ':' + p(ist.getUTCMinutes());
+  } catch (e) { return (iso || '').substring(0, 16).replace('T', ' '); }
+}
+function toggleRefresh() {
+  if (document.getElementById('autoRefresh').checked) refreshTimer = setInterval(function(){ loadData(false); }, 60000);
+  else { clearInterval(refreshTimer); refreshTimer = null; }
+}
+</script>
+</body>
+</html>
