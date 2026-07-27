@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="hi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#faf9fc;font-family:sans-serif;overflow:hidden;color:#161021}
+.screen{display:none;position:fixed;inset:0;flex-direction:column;background:#faf9fc}
+.screen.active{display:flex}
+/* ---- screen 1: education (non-dismissable — no close control) ---- */
+.content{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px 24px calc(24px + env(safe-area-inset-bottom))}
+.badge{width:84px;height:84px;border-radius:50%;background:#ffe5f6;display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+.badge span{width:0;height:0;border-style:solid;border-width:14px 0 14px 24px;border-color:transparent transparent transparent #d9008d;margin-left:6px}
+.title{font-size:21px;font-weight:700;line-height:1.4;margin-bottom:14px}
+.body{font-size:15px;color:#5c5570;line-height:1.7;margin-bottom:30px;max-width:340px}
+.body b{color:#161021}
+.cta{width:100%;max-width:360px;min-height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;background:#d9008d;color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(217,0,141,.28)}
+.cta:active{background:#b3006f}
+/* ---- screen 2: portrait video (dismissable) ---- */
+#video{background:#000}
+.vclose{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:38px;height:38px;border-radius:50%;background:rgba(22,16,33,.55);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+.vclose:active{background:rgba(22,16,33,.8)}
+.videobox{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+#ctVideo{height:100%;max-width:100%;aspect-ratio:9/16;object-fit:contain;background:#000;display:block}
+</style>
+
+<div class="screen active" id="edu">
+<div class="content">
+<div class="badge"><span></span></div>
+<div class="title">आपका बोनस अब कैसे तय होगा?</div>
+<div class="body"><b>1 अगस्त</b> से आपका बोनस आपके काम की <b>क्वालिटी</b> पर निर्भर करेगा।<br>अधिक जानकारी के लिए वीडियो देखें।</div>
+<div class="cta" onclick="goVideo()">वीडियो देखें</div>
+</div>
+</div>
+
+<div class="screen" id="video">
+<div class="vclose" onclick="dismissVideo()">✕</div>
+<div class="videobox">
+<video
+id="ctVideo"
+controls
+controlslist="nodownload"
+playsinline
+webkit-playsinline
+preload="auto"
+src="https://cdn.jsdelivr.net/gh/Vikaswiom/wiom-inapp-video@main/seva_sthiti_intro_portrait_v3.mp4?playsinline=1"></video>
+</div>
+</div>
+
+<script>
+!function(){
+  var TRACK = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
+  var FLOW = 'BONUSV3';
+  var v = document.getElementById('ctVideo');
+  var sent = {}, played = false, dismissed = false;
+
+  function w(s){ try{ (new Image).src = TRACK + '?flow=' + FLOW + '&screen=' + s + '&t=' + +new Date; }catch(e){} }
+
+  /* CT bridge attaches late — retry with back-off, fire ct-* sheet beacon on success */
+  function h(name){
+    if (sent[name]) return;
+    sent[name] = { done:false, n:0 };
+    !function t(){
+      var st = sent[name];
+      if (st.done) return;
+      try{
+        if (window.CleverTap && window.CleverTap.pushEvent){
+          window.CleverTap.pushEvent(name);
+          st.done = true; w('ct-' + name);
+          console.log('[Bonus Portrait] event fired:', name);
+          return;
+        }
+      }catch(e){ console.log('[Bonus Portrait] event failed:', e); }
+      st.n++;
+      if (st.n < 6) setTimeout(t, 250 * st.n);
+    }();
+  }
+
+  function show(id){
+    var s = document.getElementsByClassName('screen');
+    for (var i = 0; i < s.length; i++) s[i].className = 'screen';
+    document.getElementById(id).className = 'screen active';
+  }
+
+  window.goVideo = function(){
+    w('cta'); h('seva-video-cta-clicked');
+    show('video');
+    try{ v.muted = false; v.volume = 1; var p = v.play(); if (p && p.catch) p.catch(function(){}); }catch(e){}
+  };
+
+  v.addEventListener('play', function(){
+    if (!played){ played = true; w('play'); }
+    setTimeout(function(){ h('seva-video-played'); }, 300);
+  });
+  v.addEventListener('loadedmetadata', function(){ v.muted = false; v.volume = 1; });
+
+  window.dismissVideo = function(){
+    if (dismissed) return;
+    dismissed = true;
+    try{ v.pause(); }catch(e){}
+    w('dismiss'); h('seva-video-dismissed');
+    setTimeout(closeInApp, 500);   /* give the bridge retry a beat before the webview dies */
+  };
+
+  function closeInApp(){
+    try{
+      if (window.CleverTap && window.CleverTap.dismissInAppNotification) window.CleverTap.dismissInAppNotification();
+      else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.clevertap)
+        window.webkit.messageHandlers.clevertap.postMessage({ action:'dismissInAppNotification' });
+    }catch(e){}
+  }
+
+  w('inform');
+}();
+</script>
