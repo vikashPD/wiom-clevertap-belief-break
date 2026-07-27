@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bonus Seva Sthiti – Live Tracking</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FAF9FC;color:#161021;min-height:100vh}
+.header{background:#D9008D;color:#fff;padding:22px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header h1{font-size:21px;font-weight:700}
+.header p{font-size:13px;opacity:.85;margin-top:4px}
+.live-pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.16);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;letter-spacing:.5px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#7CFFB8;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.config{background:#fff;border-bottom:1px solid #E8E4F0;padding:12px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.config input{flex:1;min-width:200px;padding:9px 13px;border:1.5px solid #E8E4F0;border-radius:8px;font-size:13px;outline:none}
+.config input:focus{border-color:#D9008D}
+.config button{background:#D9008D;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
+.config button:hover{background:#B3006F}
+.config label{cursor:pointer;font-size:12px;color:#5C5570;white-space:nowrap}
+#status{font-size:12px;color:#5C5570;padding:6px 20px}
+.notice{margin:12px 20px 0;background:#FFF6E9;border:1px solid #FCE2B6;color:#8A5200;font-size:12.5px;line-height:1.55;padding:10px 14px;border-radius:10px;display:none}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:20px}
+.stat{background:#fff;border-radius:12px;padding:16px;border:1px solid #E8E4F0;text-align:center}
+.stat .val{font-size:28px;font-weight:700;color:#D9008D}
+.stat .lbl{font-size:12px;color:#5C5570;margin-top:4px}
+.stat .sub{font-size:11px;color:#A7A1B2;margin-top:3px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:0 20px 20px}
+.card{background:#fff;border-radius:12px;border:1px solid #E8E4F0;overflow:hidden}
+.card.wide{grid-column:1/-1}
+.card-head{background:#FFE5F6;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card-head h3{font-size:15px;font-weight:700;color:#D9008D}
+.card-head .tag{font-size:10px;background:#D9008D;color:#fff;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.card-body{padding:16px}
+/* funnel */
+.fstep{margin-bottom:12px}
+.fstep:last-child{margin-bottom:0}
+.frow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.frow .k{font-size:13px;color:#161021;font-weight:600}
+.frow .k small{color:#A7A1B2;font-weight:400}
+.frow .v{font-size:14px;font-weight:700;white-space:nowrap}
+.frow .v small{font-size:11px;color:#5C5570;font-weight:400}
+.fbar{height:14px;background:#F3F1F7;border-radius:4px;overflow:hidden}
+.fbar i{display:block;height:100%;background:#D9008D;border-radius:0 4px 4px 0;min-width:2px;transition:width .5s}
+.fdrop{font-size:11px;color:#A7A1B2;margin-top:3px;text-align:right}
+/* answer split */
+.arow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F3F1F7}
+.arow:last-child{border-bottom:none}
+.arow .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.arow .txt{flex:1;font-size:13px;color:#5C5570;line-height:1.4}
+.arow .n{font-size:14px;font-weight:700;white-space:nowrap}
+.arow .pc{font-size:11px;color:#A7A1B2;width:44px;text-align:right}
+.acc{margin-top:12px;padding-top:10px;border-top:1px solid #F3F1F7;display:flex;justify-content:space-between;font-size:13px}
+.acc b.good{color:#008043}
+/* daily chart */
+.legend{display:flex;gap:16px;align-items:center;font-size:12px;color:#5C5570;margin-bottom:12px;flex-wrap:wrap}
+.legend .li{display:flex;gap:6px;align-items:center}
+.legend .sw{width:11px;height:11px;border-radius:3px}
+.chart{display:flex;align-items:flex-end;gap:6px;height:170px;padding-bottom:4px;border-bottom:1px solid #E8E4F0;overflow-x:auto}
+.day{flex:1;min-width:34px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;position:relative;cursor:default}
+.bars{display:flex;gap:2px;align-items:flex-end;height:calc(100% - 4px);width:100%;justify-content:center}
+.bars i{display:block;width:10px;border-radius:4px 4px 0 0;min-height:2px;transition:height .4s}
+.day:hover .bars i{filter:brightness(1.12)}
+.xlab{font-size:10px;color:#A7A1B2;margin-top:5px;white-space:nowrap}
+.xlabs{display:flex;gap:6px;margin-top:5px}
+.xlabs span{flex:1;min-width:34px;text-align:center;font-size:10px;color:#A7A1B2;white-space:nowrap}
+.tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#161021;color:#fff;font-size:11px;line-height:1.6;padding:7px 10px;border-radius:8px;white-space:nowrap;display:none;z-index:5;pointer-events:none}
+.day:hover .tip{display:block}
+.tip .tr{display:flex;gap:6px;align-items:center}
+.tip .sw{width:8px;height:8px;border-radius:2px}
+.tbl-toggle{margin-top:12px;background:#fff;border:1px solid #E8E4F0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;color:#D9008D;cursor:pointer}
+.tbl-toggle:hover{background:#FFE5F6}
+table.data{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px;display:none}
+table.data th,table.data td{padding:6px 8px;border-bottom:1px solid #F3F1F7;text-align:right}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data th{color:#5C5570;font-weight:600;background:#FBF9FE}
+.footer{text-align:center;padding:20px;font-size:12px;color:#A7A1B2}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Bonus – Seva Sthiti · Live Tracking</h1>
+    <p>"नए सिस्टम में बोनस कैसे मिलेगा" — video + 2-question quiz in-app</p>
+  </div>
+  <div class="live-pill"><span class="live-dot"></span><span id="liveLbl">LIVE</span></div>
+</div>
+
+<div class="config">
+  <input type="text" id="endpoint" placeholder="Google Apps Script URL"/>
+  <button onclick="loadData()">Reload</button>
+  <label><input type="checkbox" id="autoRefresh" checked onchange="toggleRefresh()"/> Auto-refresh 60s</label>
+</div>
+<div id="status"></div>
+<div class="notice" id="notice"></div>
+
+<div class="totals" id="totals"></div>
+<div class="grid" id="grid"></div>
+
+<div class="footer">Wiom · Bonus Seva Sthiti tracker · pixel data is hits (not unique) · CleverTap numbers are unique users</div>
+
+<script>
+var DEFAULT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
+var PINK = '#D9008D', BLUE = '#2563EB';
+var refreshTimer = null, jsonpSeq = 0;
+
+var Q1 = {
+  q: 'Q1 — बोनस पाने के लिए क्या ज़रूरी है?',
+  right:  { key: 'right',  txt: 'अच्छी सेवा स्थिति बनाए रखना (सही)' },
+  wrongs: [ { key: 'wrong0', txt: 'रोज़ मोबाइल नंबर बदलते रहना' },
+            { key: 'wrong2', txt: 'ऐप की भाषा बदलते रहना' } ]
+};
+var Q2 = {
+  q: 'Q2 — क्वालिटी की पूरी जानकारी कहाँ मिलेगी?',
+  right:  { key: 'right2',  txt: '(?) आइकन पर क्लिक करने पर (सही)' },
+  wrongs: [ { key: 'wrong20', txt: 'किस्मत अच्छी हुई तो अपने-आप पता चल जाएगा' },
+            { key: 'wrong22', txt: 'फोन को 360° घुमाने पर' } ]
+};
+
+window.onload = function() {
+  document.getElementById('endpoint').value = localStorage.getItem('wiom_tracking_url') || DEFAULT_ENDPOINT;
+  loadData();
+  toggleRefresh();
+};
+
+function jsonp(url, timeoutMs) {
+  return new Promise(function(resolve, reject) {
+    var cb = '_wcb' + (++jsonpSeq) + '_' + Date.now();
+    var done = false;
+    var s = document.createElement('script');
+    function cleanup() { clearTimeout(to); try { delete window[cb]; } catch(e){} if (s.parentNode) s.parentNode.removeChild(s); }
+    window[cb] = function(data) { done = true; cleanup(); resolve(data); };
+    var to = setTimeout(function() { if (!done) { cleanup(); reject(new Error('timeout')); } }, timeoutMs || 45000);
+    s.onload = function() { setTimeout(function() { if (!done) { cleanup(); reject(new Error('no-callback')); } }, 300); };
+    s.onerror = function() { cleanup(); reject(new Error('network')); };
+    s.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=' + cb;
+    document.body.appendChild(s);
+  });
+}
+
+function loadData() {
+  var url = document.getElementById('endpoint').value.trim();
+  if (!url) { setStatus('Paste the tracking URL first'); return; }
+  localStorage.setItem('wiom_tracking_url', url);
+  setStatus('Loading… (first load after an idle hour takes ~20s — CleverTap counts refresh)');
+  jsonp(url + '?action=bonus').then(function(d) {
+    if (d && d.screens) { renderFull(d); }
+    else { return fallback(url); }
+  }).catch(function() { return fallback(url); });
+}
+
+function fallback(url) {
+  return jsonp(url + '?action=data').then(function(d) {
+    if (d && d.summary && d.summary.BONUS) renderBasic(d);
+    else setStatus('Endpoint responded but no BONUS data found.');
+  }).catch(function(e) { setStatus('Could not load data: ' + e.message); });
+}
+
+function setStatus(t) { document.getElementById('status').textContent = t; }
+function fmt(n) { return (n || 0).toLocaleString('en-IN'); }
+function pct(a, b) { return b ? Math.round(a / b * 1000) / 10 + '%' : '–'; }
+
+function toggleRefresh() {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  var on = document.getElementById('autoRefresh').checked;
+  document.getElementById('liveLbl').textContent = on ? 'LIVE' : 'PAUSED';
+  if (on) refreshTimer = setInterval(loadData, 60000);
+}
+
+/* ---------- shared renderers ---------- */
+
+function renderTotals(ct) {
+  ct = ct || {};
+  var t = [
+    { v: ct.shown,       l: 'Shown (CT unique)',      s: 'inApp_Shown, both campaigns' },
+    { v: ct.viewers,     l: 'Video played (CT)',       s: pct(ct.viewers, ct.shown) + ' of shown' },
+    { v: ct.completers,  l: 'Quiz 1 completed (CT)',   s: pct(ct.completers, ct.shown) + ' of shown' },
+    { v: ct.completers2, l: 'Quiz 2 completed (CT)',   s: pct(ct.completers2, ct.shown) + ' of shown' }
+  ];
+  document.getElementById('totals').innerHTML = t.map(function(x) {
+    return '<div class="stat"><div class="val">' + fmt(x.v) + '</div><div class="lbl">' + x.l + '</div><div class="sub">' + x.s + '</div></div>';
+  }).join('');
+}
+
+function funnelCard(steps) {
+  var base = steps.length ? steps[0].n : 0;
+  var html = '<div class="card"><div class="card-head"><h3>Pixel Funnel</h3><span class="tag">hits</span></div><div class="card-body">';
+  for (var i = 0; i < steps.length; i++) {
+    var s = steps[i], w = base ? Math.max(1, s.n / base * 100) : 0;
+    html += '<div class="fstep"><div class="frow"><span class="k">' + s.k + '</span>' +
+      '<span class="v">' + fmt(s.n) + ' <small>(' + pct(s.n, base) + ')</small></span></div>' +
+      '<div class="fbar"><i style="width:' + w + '%"></i></div>';
+    if (i > 0) html += '<div class="fdrop">step conv ' + pct(s.n, steps[i-1].n) + '</div>';
+    html += '</div>';
+  }
+  return html + '</div></div>';
+}
+
+function answerCard(title, def, screens) {
+  var right = screens[def.right.key] || 0;
+  var w = def.wrongs.map(function(x) { return { txt: x.txt, n: screens[x.key] || 0 }; });
+  var total = right + w.reduce(function(a, x) { return a + x.n; }, 0);
+  var rows = [{ txt: def.right.txt, n: right, c: '#008043' }]
+    .concat(w.map(function(x) { return { txt: x.txt, n: x.n, c: '#D92130' }; }));
+  var html = '<div class="card"><div class="card-head"><h3>' + title + '</h3><span class="tag">' + fmt(total) + ' answered</span></div><div class="card-body">';
+  html += '<div style="font-size:13px;font-weight:600;margin-bottom:8px;line-height:1.45">' + def.q + '</div>';
+  rows.forEach(function(r) {
+    html += '<div class="arow"><span class="dot" style="background:' + r.c + '"></span><span class="txt">' + r.txt + '</span>' +
+      '<span class="n">' + fmt(r.n) + '</span><span class="pc">' + pct(r.n, total) + '</span></div>';
+  });
+  html += '<div class="acc"><span>Accuracy (first tap)</span><b class="good">' + pct(right, total) + '</b></div>';
+  return html + '</div></div>';
+}
+
+/* ---------- full mode (action=bonus) ---------- */
+
+function renderFull(d) {
+  var sc = d.screens || {};
+  var q1a = (sc.right || 0) + (sc.wrong0 || 0) + (sc.wrong2 || 0);
+  var q2a = (sc.right2 || 0) + (sc.wrong20 || 0) + (sc.wrong22 || 0);
+  document.getElementById('notice').style.display = 'none';
+  renderTotals(d.ct);
+
+  var html = funnelCard([
+    { k: 'Impression <small>(inform)</small>',   n: sc.inform || 0 },
+    { k: 'Video play tapped <small>(play)</small>', n: sc.play || 0 },
+    { k: 'Quiz 1 seen <small>(45s done)</small>', n: sc.quiz || 0 },
+    { k: 'Quiz 1 answered', n: q1a },
+    { k: 'Quiz 2 seen', n: sc.quiz2 || 0 },
+    { k: 'Quiz 2 answered', n: q2a }
+  ]);
+  html += answerCard('Quiz 1 Answers', Q1, sc);
+  html += answerCard('Quiz 2 Answers', Q2, sc);
+  html += dailyCard(d.daily || {});
+  document.getElementById('grid').innerHTML = html;
+  wireTableToggle();
+  setStatus('Updated ' + new Date().toLocaleTimeString('en-IN', { hour12: true }) +
+    ' · sheet rows (BONUS): ' + fmt(d.total) +
+    (d.ct && d.ct.updated ? ' · CT counts as of ' + new Date(d.ct.updated).toLocaleTimeString('en-IN', { hour12: true }) : ''));
+}
+
+function dailyCard(daily) {
+  var dates = Object.keys(daily).sort().slice(-14);
+  if (!dates.length) return '';
+  var series = [
+    { name: 'Video plays', c: PINK, get: function(x) { return x.play || 0; } },
+    { name: 'Quiz 1 answered', c: BLUE, get: function(x) { return (x.right || 0) + (x.wrong0 || 0) + (x.wrong2 || 0); } }
+  ];
+  var max = 1;
+  dates.forEach(function(dt) { series.forEach(function(s) { max = Math.max(max, s.get(daily[dt])); }); });
+
+  var html = '<div class="card wide"><div class="card-head"><h3>Daily Trend</h3><span class="tag">last ' + dates.length + ' days</span></div><div class="card-body">';
+  html += '<div class="legend">' + series.map(function(s) {
+    return '<span class="li"><span class="sw" style="background:' + s.c + '"></span>' + s.name + '</span>';
+  }).join('') + '</div>';
+  html += '<div class="chart">';
+  dates.forEach(function(dt) {
+    var vals = series.map(function(s) { return s.get(daily[dt]); });
+    html += '<div class="day"><div class="tip"><b>' + dt + '</b>' + series.map(function(s, i) {
+        return '<div class="tr"><span class="sw" style="background:' + s.c + '"></span>' + s.name + ': ' + fmt(vals[i]) + '</div>';
+      }).join('') + '</div><div class="bars">' +
+      vals.map(function(v, i) { return '<i style="background:' + series[i].c + ';height:' + Math.max(1.5, v / max * 100) + '%"></i>'; }).join('') +
+      '</div></div>';
+  });
+  html += '</div><div class="xlabs">' + dates.map(function(dt) { return '<span>' + dt.slice(5) + '</span>'; }).join('') + '</div>';
+  html += '<button class="tbl-toggle" id="tblBtn">Show data table</button>';
+  html += '<table class="data" id="tbl"><tr><th>Date</th>' + series.map(function(s) { return '<th>' + s.name + '</th>'; }).join('') + '</tr>';
+  dates.forEach(function(dt) {
+    html += '<tr><td>' + dt + '</td>' + series.map(function(s) { return '<td>' + fmt(s.get(daily[dt])) + '</td>'; }).join('') + '</tr>';
+  });
+  html += '</table></div></div>';
+  return html;
+}
+
+function wireTableToggle() {
+  var btn = document.getElementById('tblBtn'), tbl = document.getElementById('tbl');
+  if (!btn || !tbl) return;
+  btn.onclick = function() {
+    var show = tbl.style.display !== 'table';
+    tbl.style.display = show ? 'table' : 'none';
+    btn.textContent = show ? 'Hide data table' : 'Show data table';
+  };
+}
+
+/* ---------- basic mode (action=data fallback) ---------- */
+
+function renderBasic(d) {
+  var b = d.summary.BONUS || {};
+  var n = document.getElementById('notice');
+  n.style.display = 'block';
+  n.innerHTML = '<b>Basic mode</b> — the deployed Apps Script doesn’t serve <code>action=bonus</code> yet, so quiz-2 screens and the daily trend aren’t available. ' +
+    'Add the <code>action=bonus</code> block from <code>tracking-backend.gs</code> to the deployed script and redeploy (Manage deployments → Edit → New version).';
+  renderTotals(d.ct);
+  var html = funnelCard([
+    { k: 'Impression <small>(inform)</small>', n: b.inform || 0 },
+    { k: 'Video play tapped <small>(play)</small>', n: b.play || 0 },
+    { k: 'Quiz 1 seen <small>(45s done)</small>', n: b.quiz || 0 },
+    { k: 'Quiz 1 answered', n: (b.correct || 0) + (b.wrong || 0) }
+  ]);
+  html += '<div class="card"><div class="card-head"><h3>Quiz 1 Answers</h3><span class="tag">' + fmt((b.correct || 0) + (b.wrong || 0)) + ' answered</span></div><div class="card-body">' +
+    '<div class="arow"><span class="dot" style="background:#008043"></span><span class="txt">Correct</span><span class="n">' + fmt(b.correct) + '</span><span class="pc">' + pct(b.correct, (b.correct || 0) + (b.wrong || 0)) + '</span></div>' +
+    '<div class="arow"><span class="dot" style="background:#D92130"></span><span class="txt">Wrong</span><span class="n">' + fmt(b.wrong) + '</span><span class="pc">' + pct(b.wrong, (b.correct || 0) + (b.wrong || 0)) + '</span></div>' +
+    '<div class="acc"><span>Accuracy (first tap)</span><b class="good">' + pct(b.correct, (b.correct || 0) + (b.wrong || 0)) + '</b></div></div></div>';
+  document.getElementById('grid').innerHTML = html;
+  setStatus('Updated ' + new Date().toLocaleTimeString('en-IN', { hour12: true }) + ' · basic mode (action=data)');
+}
+</script>
+</body>
+</html>

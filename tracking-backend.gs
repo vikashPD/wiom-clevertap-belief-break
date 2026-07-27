@@ -114,6 +114,17 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  // Bonus Seva Sthiti deep-dive (bonus-dashboard.html) — full screen breakdown + daily trend
+  if (p.action === 'bonus') {
+    var jsonB = buildBonusSummary_();
+    if (p.callback) {
+      return ContentService.createTextOutput(p.callback + '(' + jsonB + ')')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
+    return ContentService.createTextOutput(jsonB)
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   // Pixel tracking hit
   var flow   = String(p.flow   || '').replace(/[^A-Za-z0-9_-]/g, '').substring(0, 10);
   var screen = String(p.screen || '').replace(/[^A-Za-z0-9_-]/g, '').substring(0, 20);
@@ -189,6 +200,33 @@ function getSheet_() {
     sh.setFrozenRows(1);
   }
   return sh;
+}
+
+// Full BONUS-flow rollup: every screen beacon counted, plus per-day breakdown.
+// Screens (2-question build): inform, play, quiz, right, wrong0, wrong2,
+// quiz2, right2, wrong20, wrong22, ct-* (bridge confirmations; NOTE the sheet
+// truncates screen to 20 chars, so both quiz ct-beacons collapse to
+// "ct-quiz-completed-bo" — use the right2/wrong2x screens for the Q2 split).
+function buildBonusSummary_() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  var out = { screens: {}, daily: {}, total: 0, updated: new Date().toISOString() };
+  out.ct = getCtCounts_();
+  if (!sh || sh.getLastRow() < 2) return JSON.stringify(out);
+
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues();
+  for (var r = 0; r < rows.length; r++) {
+    if (rows[r][1] !== 'BONUS') continue;
+    var screen = String(rows[r][2]);
+    var date = rows[r][3];
+    date = (date instanceof Date)
+      ? Utilities.formatDate(date, 'Asia/Kolkata', 'yyyy-MM-dd')
+      : String(date);
+    out.total++;
+    out.screens[screen] = (out.screens[screen] || 0) + 1;
+    var d = out.daily[date] || (out.daily[date] = {});
+    d[screen] = (d[screen] || 0) + 1;
+  }
+  return JSON.stringify(out);
 }
 
 function buildSummary_(fromDate, toDate) {
