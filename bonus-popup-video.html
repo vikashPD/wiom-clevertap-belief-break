@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1 अगस्त से आपके बोनस पर असर पड़ सकता है</title>
+<style>
+  :root{
+    --brand:#D9008D;
+    --brand-press:#B80077;
+    --brand-tint:#FFE5F6;
+    --ink:#161021;
+    --muted:#665E75;
+    --white:#FFFFFF;
+    --scrim:rgba(37,10,27,.55);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Noto Sans Devanagari","Nirmala UI","Kohinoor Devanagari",system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--scrim);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- popup ---------- */
+  .scrim{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+
+  .card{
+    position:relative;
+    width:100%;max-width:312px;
+    background:var(--white);
+    border-radius:24px;
+    padding:28px 20px 22px;
+    display:flex;flex-direction:column;
+    box-shadow:0 18px 50px rgba(37,10,27,.30);
+    animation:pop .28s cubic-bezier(.2,.8,.25,1) both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+  .close{
+    position:absolute;top:12px;right:12px;
+    width:32px;height:32px;
+    border:none;border-radius:50%;
+    background:#F4EEF2;color:var(--muted);
+    font-size:18px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .close:active{background:#E9E1E7}
+
+  .badge{
+    width:48px;height:48px;border-radius:50%;
+    background:var(--brand-tint);
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+    margin-bottom:20px;
+  }
+  .badge span{font-size:24px;font-weight:800;color:var(--brand);line-height:1}
+
+  h1{
+    font-size:20px;line-height:1.35;font-weight:800;
+    color:var(--ink);letter-spacing:-.01em;
+    padding-right:24px;
+    text-wrap:balance;
+    margin-bottom:14px;
+  }
+
+  .copy{
+    font-size:14.5px;line-height:1.62;color:var(--muted);
+    margin-bottom:26px;
+  }
+
+  .cta{
+    position:relative;overflow:hidden;
+    width:100%;border:none;border-radius:14px;
+    padding:15px 18px;cursor:pointer;
+    background:linear-gradient(180deg,#E8129C,#C8007F);
+    color:#FFFFFF;
+    font-family:inherit;font-size:16px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    box-shadow:0 6px 18px rgba(217,0,141,.34),inset 0 1px 0 rgba(255,255,255,.22);
+    transition:transform .12s ease,box-shadow .12s ease;
+  }
+  .cta:active{
+    background:var(--brand-press);
+    transform:translateY(1px);
+    box-shadow:0 3px 10px rgba(217,0,141,.30);
+  }
+  .cta > *{position:relative;z-index:1}
+
+  /* light sweeps across the button, then waits */
+  .cta::after{
+    content:"";
+    position:absolute;top:0;left:-60%;width:38%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);
+    transform:skewX(-18deg);
+    animation:sheen 3.6s ease-in-out infinite;
+  }
+  @keyframes sheen{
+    0%{left:-60%}
+    24%{left:130%}
+    100%{left:130%}
+  }
+
+  /* ---------- fullscreen 9:16 video ---------- */
+  .player{
+    position:fixed;inset:0;z-index:9999;
+    background:#000;
+    display:none;align-items:center;justify-content:center;
+  }
+  .player.open{display:flex}
+
+  .stage{
+    position:relative;
+    height:100%;width:100%;
+    max-width:calc(100vh * 9 / 16);
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .player video{
+    width:100%;height:100%;
+    object-fit:contain;
+    background:#000;
+    display:block;
+  }
+
+  .vclose{
+    position:absolute;
+    top:max(16px,env(safe-area-inset-top));
+    right:16px;
+    width:40px;height:40px;
+    border:none;border-radius:50%;
+    background:rgba(0,0,0,.55);
+    color:#fff;font-size:22px;line-height:1;
+    cursor:pointer;z-index:2;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .vclose:active{background:rgba(0,0,0,.75)}
+
+  /* watch-time readout. Flip SHOW_HUD to false to ship without it. */
+  .hud{
+    position:absolute;
+    top:max(16px,env(safe-area-inset-top));
+    left:16px;
+    z-index:2;
+    display:none;align-items:center;gap:8px;
+    height:40px;padding:0 14px;
+    border-radius:999px;
+    background:rgba(0,0,0,.55);
+    color:#fff;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:12px;font-weight:600;line-height:1;
+    font-variant-numeric:tabular-nums;
+    pointer-events:none;
+  }
+  .hud.on{display:flex}
+  .hud i{
+    width:8px;height:8px;border-radius:50%;flex:none;
+    background:#8C8C8C;transition:background .15s;
+  }
+  .hud i.live{background:#3FBF80}
+
+  @media (prefers-reduced-motion:reduce){
+    .card,.cta::after{animation:none}
+  }
+</style>
+</head>
+<body>
+
+  <div class="scrim" id="scrim">
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="title">
+
+      <button class="close" id="btnClose" aria-label="बंद करें">&times;</button>
+
+      <div class="badge" aria-hidden="true"><span>&#8377;</span></div>
+
+      <h1 id="title">1 अगस्त से आपके बोनस पर असर पड़ सकता है</h1>
+
+      <p class="copy">अब आपका बोनस आपके काम की क्वालिटी पर निर्भर करेगा। जितना अच्छा काम, उतना बढ़िया बोनस।</p>
+
+      <button class="cta" id="btnPlay">
+        <span>और जानें</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="player" id="player" role="dialog" aria-label="वीडियो">
+    <div class="stage">
+      <div class="hud" id="hud" aria-hidden="true"><i id="hudDot"></i><span id="hudText">0s · 0%</span></div>
+      <button class="vclose" id="btnVClose" aria-label="वीडियो बंद करें">&times;</button>
+      <video id="video" playsinline webkit-playsinline controls controlslist="nodownload" preload="metadata" src="https://cdn.jsdelivr.net/gh/Vikaswiom/wiom-inapp-video@main/seva_sthiti_intro_portrait_v3.mp4?playsinline=1"></video>
+    </div>
+  </div>
+
+<script>
+/* ================================================================
+   Tracking follows ct-events-in-html-guide.md.
+
+   Two independent channels, same actions on both:
+     h(name)   CleverTap event via window.CleverTap.pushEvent,
+               with back-off retry because the bridge attaches late.
+               Dedupes: each event fires at most once.
+     w(screen) Sheet pixel beacon. Instant, repeatable, no CORS.
+
+   Every successful CT push also fires a ct-<name> beacon, so the
+   Sheet tells us how many pushes actually landed.
+
+   BEFORE THE CAMPAIGN GOES OUT:
+     1. TRACK is set to the live Apps Script deployment (same one
+        as all belief-break templates).
+     2. FLOW 'BONUSV4' is unique to this template.
+     3. Turn ON "Include JavaScript" in the CT custom-HTML in-app,
+        and re-save it after any edit to this file.
+     4. Test on a real device. CT Preview attaches the bridge early
+        and hides the race the retry pattern exists to solve.
+   ================================================================ */
+(function () {
+  'use strict';
+
+  /* ---------- config ---------- */
+  var TRACK = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
+  var FLOW  = 'BONUSV4';                     // one flow name per template
+  var SHOW_HUD = false;                      // QA readout on the video. true only while testing.
+  var CLOSE_INAPP_ON_VIDEO_EXIT = true;      // matches the portrait-video template
+
+  /* ---------- channel 2: sheet pixel beacon ---------- */
+  function w(screen) {
+    try {
+      (new Image()).src = TRACK + '?flow=' + FLOW + '&screen=' + screen + '&t=' + (+new Date());
+    } catch (e) {}
+  }
+
+  /* ---------- channel 1: clevertap, with back-off retry ---------- */
+  var sent = {};
+
+  function h(name) {
+    if (sent[name]) return;                            // fire each event only once
+    sent[name] = { done: false, n: 0 };
+    !function tryPush() {
+      var st = sent[name];
+      if (st.done) return;
+      try {
+        if (window.CleverTap && window.CleverTap.pushEvent) {
+          window.CleverTap.pushEvent(name);
+          st.done = true;
+          w('ct-' + name);                             // confirmation beacon
+          if (window.console && console.log) {
+            console.log('[Bonus Seva] event fired: ' + name);
+          }
+          return;
+        }
+      } catch (e) {}
+      st.n++;
+      if (st.n < 6) setTimeout(tryPush, 250 * st.n);   // 250, 500, 750 ... approx 3.75s
+    }();
+  }
+
+  var scrim   = document.getElementById('scrim');
+  var player  = document.getElementById('player');
+  var video   = document.getElementById('video');
+  var hud     = document.getElementById('hud');
+  var hudDot  = document.getElementById('hudDot');
+  var hudText = document.getElementById('hudText');
+
+  /* ------------------------------------------------------------
+     Active watch time.
+
+     activeMs only grows while the video is genuinely rendering
+     frames. Pause, buffering, backgrounding and closing the
+     player all stop the clock, and it resumes on the next play.
+     Kept separate from currentTime so that seeking forward
+     cannot inflate it.
+     ------------------------------------------------------------ */
+  var WATCH = {
+    activeMs: 0,        // real time spent watching
+    maxPosition: 0,     // furthest second reached
+    started: false,
+    completed: false,
+    milestones: { 25: false, 50: false, 75: false }
+  };
+
+  var timer = null;
+  var lastTick = 0;
+
+  function isPlaying() {
+    return !video.paused && !video.ended && video.readyState >= 3;
+  }
+
+  function startClock() {
+    if (timer) return;
+    lastTick = Date.now();
+    timer = setInterval(tick, 250);
+    paint();
+  }
+
+  function stopClock() {
+    if (!timer) return;
+    tick();
+    clearInterval(timer);
+    timer = null;
+    paint();
+  }
+
+  function tick() {
+    var now = Date.now();
+    if (isPlaying()) WATCH.activeMs += now - lastTick;
+    lastTick = now;
+    if (video.currentTime > WATCH.maxPosition) WATCH.maxPosition = video.currentTime;
+    checkMilestones();
+    paint();
+  }
+
+  function activeSeconds() { return WATCH.activeMs / 1000; }
+
+  function watchedPercent() {
+    var d = video.duration;
+    if (!d || !isFinite(d) || d <= 0) return 0;
+    return Math.min(100, Math.round(activeSeconds() / d * 100));
+  }
+
+  /* Milestones are measured on active time, not on the playhead,
+     so dragging the scrubber to the end cannot fake a 100%.
+     Each fires once, which is exactly what h() already enforces. */
+  function checkMilestones() {
+    var pct = watchedPercent();
+    [25, 50, 75].forEach(function (m) {
+      if (!WATCH.milestones[m] && pct >= m) {
+        WATCH.milestones[m] = true;
+        w('watch' + m);
+        h('seva-video-w' + m);
+      }
+    });
+  }
+
+  /* How long they actually watched, bucketed. Screen names are
+     truncated to 20 chars by the backend, so keep these short. */
+  function dwellBucket() {
+    var s = activeSeconds();
+    if (s < 5)  return 'dwell-0-5';
+    if (s < 15) return 'dwell-5-15';
+    if (s < 30) return 'dwell-15-30';
+    if (s < 60) return 'dwell-30-60';
+    return 'dwell-60p';
+  }
+
+  /* Read the tally on demand, e.g. from a device console. */
+  function summary() {
+    return {
+      flow: FLOW,
+      activeSeconds: Math.round(activeSeconds() * 10) / 10,
+      watchedPercent: watchedPercent(),
+      maxPositionSeconds: Math.round(WATCH.maxPosition * 10) / 10,
+      durationSeconds: isFinite(video.duration) ? Math.round(video.duration * 10) / 10 : null,
+      completed: WATCH.completed,
+      dwellBucket: dwellBucket()
+    };
+  }
+
+  /* ---------- hud ---------- */
+  function fmt(s) {
+    var t = Math.floor(s), m = Math.floor(t / 60);
+    var r = t % 60;
+    return m > 0 ? m + ':' + (r < 10 ? '0' + r : r) : t + 's';
+  }
+
+  function paint() {
+    if (!SHOW_HUD) return;
+    hudDot.className = isPlaying() ? 'live' : '';
+    hudText.textContent = fmt(activeSeconds()) + ' · ' + watchedPercent() + '%';
+  }
+
+  /* ---------- video events ---------- */
+  var closing = false;
+
+  /* CT webviews can start media muted (see RCA-video-muted) — force sound on. */
+  function unmute() { try { video.muted = false; video.volume = 1; } catch (e) {} }
+  video.addEventListener('loadedmetadata', unmute);
+
+  video.addEventListener('playing', function () {
+    unmute();
+    if (!WATCH.started) {
+      WATCH.started = true;
+      w('play');
+      setTimeout(function () { h('seva-video-played'); }, 300);
+    } else {
+      w('resume');
+    }
+    startClock();
+  });
+
+  video.addEventListener('pause', function () {
+    stopClock();
+    if (!video.ended && !closing) w('pause');
+  });
+
+  video.addEventListener('ended', function () {
+    stopClock();
+    if (!WATCH.completed) {
+      WATCH.completed = true;
+      w('watch100');
+      h('seva-video-done');
+    }
+  });
+
+  video.addEventListener('seeked', function () {
+    if (video.currentTime > WATCH.maxPosition) WATCH.maxPosition = video.currentTime;
+    paint();
+  });
+
+  // Backgrounding the app must not keep the clock running.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && !video.paused) video.pause();
+  });
+
+  /* ---------- open ---------- */
+  document.getElementById('btnPlay').addEventListener('click', function () {
+    w('cta');
+    h('seva-video-cta-clicked');
+    player.classList.add('open');
+    if (SHOW_HUD) hud.classList.add('on');
+    paint();
+    unmute();
+    var p = video.play();
+    if (p && p.catch) p.catch(function () {});
+  });
+
+  /* ---------- close ----------
+     Dismissing kills the WebView and any pending retries with it,
+     so beacons and the CT push go first and the close waits 500ms. */
+  function closeInApp() {
+    try {
+      if (CLOSE_INAPP_ON_VIDEO_EXIT && window.CleverTap && window.CleverTap.dismissInAppNotification) {
+        window.CleverTap.dismissInAppNotification();
+        return;
+      }
+    } catch (e) {}
+    // Browser preview, or in-app close disabled: fall back to the popup.
+    player.classList.remove('open');
+    hud.classList.remove('on');
+    video.currentTime = 0;
+    closing = false;   // reset here — video.pause() fires its 'pause' event async,
+                       // so resetting inside dismissVideo would log a spurious beacon
+  }
+
+  window.dismissVideo = function () {
+    closing = true;
+    video.pause();
+    stopClock();
+    w('dismiss');
+    w(dwellBucket());                       // how long they actually watched
+    h('seva-video-dismissed');
+    setTimeout(closeInApp, 500);
+  };
+
+  document.getElementById('btnVClose').addEventListener('click', window.dismissVideo);
+
+  document.getElementById('btnClose').addEventListener('click', function () {
+    w('close');
+    h('seva-popup-closed');
+    setTimeout(function () {
+      try {
+        if (window.CleverTap && window.CleverTap.dismissInAppNotification) {
+          window.CleverTap.dismissInAppNotification();
+          return;
+        }
+      } catch (e) {}
+      scrim.style.display = 'none';
+    }, 500);
+  });
+
+  /* ---------- in-app opened ---------- */
+  w('inform');                              // CT logs inApp_Shown by itself
+
+  // Read the tally on demand from a device console.
+  window.wiomWatchStats = summary;
+})();
+</script>
+
+</body>
+</html>
