@@ -226,7 +226,10 @@
   /* ---------- config ---------- */
   var TRACK = 'https://script.google.com/macros/s/AKfycbw770KNFn3SnpKbRwtLbPe8MJu8dpDXwau6UY-JTfcbA8Y0T2ZRyoGRRMhi4k8WTAo2/exec';
   var FLOW  = 'BONUSV4';                     // one flow name per template
-  var SHOW_HUD = false;                      // QA readout on the video. true only while testing.
+  /* Watch-time readout on the video. Hidden. Tracking is unaffected:
+     the clock, the milestones and both channels run either way.
+     Flip to true only when QA needs to watch the timer on a device. */
+  var SHOW_HUD = false;
   var CLOSE_INAPP_ON_VIDEO_EXIT = true;      // matches the portrait-video template
 
   /* ---------- channel 2: sheet pixel beacon ---------- */
